@@ -1,22 +1,10 @@
 /**
-🎯 MAIN APPLICATION CONTROLLER (v2.0 - CORREGIDO)
+🎯 MAIN APPLICATION CONTROLLER (v4.1 - FINAL)
 */
-import {
-    calcularWPSCompleto,
-    getElectricalParams,
-    getHeatInputRange
-} from './wps-calculator.js';
-
-import {
-    updateProUI,
-    activatePro,
-    deactivatePro,
-    contactDeveloper,
-    initProSystem
-} from './pro-system.js';
-
-import { initAds } from './ads-manager.js';
-import { db, doc, setDoc, getDoc } from './firebase-config.js'; 
+import { calcularWPSCompleto } from './wps-calculator.js';
+import { updateProUI, activatePro, deactivatePro, contactDeveloper, initProSystem } from './pro-system.js';
+import { initAds, getRandomAd } from './ads-manager.js';
+import { db, doc, setDoc, getDoc } from './firebase-config.js';
 
 // =========================================
 // 📚 CONSTANTES
@@ -24,6 +12,7 @@ import { db, doc, setDoc, getDoc } from './firebase-config.js';
 const FREE_MATERIALS = ['A36', 'A500', 'A516-70', 'A53'];
 const FREE_SIZES = ['6', '8', '10', '12'];
 const FREE_PROCESSES = ['GMAW'];
+window.hasCalculated = false;
 
 // =========================================
 // 🎬 INICIALIZACIÓN
@@ -36,294 +25,125 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // =========================================
-// 🔄 NAVEGACIÓN ENTRE PESTAÑAS
+// 🔄 NAVEGACIÓN
 // =========================================
 window.switchTab = function(screenId, btnElement) {
-    document.querySelectorAll('.screen').forEach(screen => {
-        screen.classList.remove('active');
-    });
-    
-    document.querySelectorAll('.nav-tab').forEach(tab => {
-        tab.classList.remove('active');
-    });
-
-    const targetScreen = document.getElementById(screenId);
-    if (targetScreen) {
-        targetScreen.classList.add('active');
-    }
-
-    if (btnElement) {
-        btnElement.classList.add('active');
-    }
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    const target = document.getElementById(screenId);
+    if (target) target.classList.add('active');
+    if (btnElement) btnElement.classList.add('active');
 };
 
 // =========================================
-// 📋 LÓGICA DEL FORMULARIO
+// 📋 LÓGICA FORMULARIO
 // =========================================
 window.updateFormLogic = function() {
     clearAllErrors();
     const position = document.getElementById('position').value;
-    const weldSelect = document.getElementById('weldingType');
     const weldStatic = document.getElementById('weldingTypeStatic');
-
     hideAllConditionalSections();
-    
-    if (weldSelect) weldSelect.value = "";
-
+    if(weldStatic) weldStatic.value = "";
     if (!position) return;
-
     if (position.endsWith('F')) {
-        if (weldSelect) weldSelect.style.display = 'none';
-        if (weldStatic) {
-            weldStatic.style.display = 'block';
-            weldStatic.value = "FILETE";
-        }
+        if(weldStatic) { weldStatic.style.display = 'block'; weldStatic.value = "FILETE"; }
         document.getElementById('condition-filete').style.display = 'block';
     } else if (position.endsWith('G')) {
-        if (weldSelect) weldSelect.style.display = 'block';
-        if (weldStatic) weldStatic.style.display = 'none';
-        
-        if (weldSelect && weldSelect.options.length <= 1) {
-            weldSelect.innerHTML = `
-                <option value="">-- Seleccionar --</option>
-                <option value="Ranura Bisel">Ranura Bisel</option>
-                <option value="Tope">Tope (Square)</option>
-            `;
-        }
+        if(weldStatic) weldStatic.style.display = 'none';
+        document.getElementById('condition-bevel').style.display = 'block';
     }
 };
-
 window.updateConditionalFields = function() {
     const type = document.getElementById('weldingType').value;
     hideAllConditionalSections();
-
-    if (type === 'Ranura Bisel') {
-        document.getElementById('condition-bevel').style.display = 'block';
-    } else if (type === 'Tope') {
-        document.getElementById('condition-square').style.display = 'block';
-    }
+    if (type === 'Ranura Bisel') document.getElementById('condition-bevel').style.display = 'block';
+    else if (type === 'Tope') document.getElementById('condition-square').style.display = 'block';
 };
-
 function hideAllConditionalSections() {
-    const ids = ['condition-filete', 'condition-bevel', 'condition-square'];
-    ids.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.style.display = 'none';
+    ['condition-filete', 'condition-bevel', 'condition-square'].forEach(id => {
+        const el = document.getElementById(id); if (el) el.style.display = 'none';
     });
 }
 
 // =========================================
-// ✅ VALIDACIÓN DE CAMPOS
+// ✅ VALIDACIÓN & INTERSTICIAL
 // =========================================
 window.validarYMostrarAnuncio = function(accionReal) {
-    const hasError = validateRequiredFields();
-    if (hasError) {
-        scrollToFirstError();
-        return;
-    }
+    if (validateRequiredFields()) { scrollToFirstError(); return; }
+    incrementCounter('calculate_clicks');
+    
+    if (localStorage.getItem('wps_pro_active') === 'true') { accionReal(); return; }
 
-    const isPro = localStorage.getItem('wps_pro_active') === 'true';
-    if (isPro) {
-        accionReal();
-        return;
-    }
-
-    accionReal();
+    const ad1 = getRandomAd ? getRandomAd() : null;
+    const ad2 = getRandomAd ? getRandomAd() : null;
+    if (ad1 && ad2) showInterstitialAd([ad1, ad2], accionReal);
+    else accionReal();
 };
 
 function validateRequiredFields() {
-    let hasError = false;
-    clearAllErrors();
+    let err = false; clearAllErrors();
+    ['process', 'baseThickness', 'position', 'material'].forEach(id => {
+        if (!document.getElementById(id)?.value) { showError('group-' + id.replace(/([A-Z])/g, '-$1').toLowerCase()); err = true; }
+    });
+    if (document.getElementById('position').value?.endsWith('F') && !document.getElementById('weldSize').value) {
+        showError('group-weldsize'); err = true;
+    }
+    return err;
+}
+function showError(id) {
+    const g = document.getElementById(id);
+    if (g && !g.classList.contains('error')) {
+        g.classList.add('error');
+        if (!g.querySelector('.error-message')) {
+            const m = document.createElement('div'); m.className = 'error-message'; m.textContent = 'Campo obligatorio'; g.appendChild(m);
+        }
+    }
+}
+window.clearError = function(id) { const g = document.getElementById(id); if(g) { g.classList.remove('error'); g.querySelector('.error-message')?.remove(); } };
+function clearAllErrors() { document.querySelectorAll('.form-group.error').forEach(el => { el.classList.remove('error'); el.querySelector('.error-message')?.remove(); }); }
+function scrollToFirstError() { document.querySelector('.form-group.error')?.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+
+// =========================================
+// ⏳ INTERSTICIAL AD
+// =========================================
+function showInterstitialAd(ads, onContinue) {
+    const overlay = document.getElementById('pre-result-ad-overlay');
+    const imgEl = document.getElementById('interstitial-ad-img');
+    const btnEl = document.getElementById('interstitial-btn');
+    const timerEl = document.getElementById('interstitial-timer');
+    if (!overlay) { onContinue(); return; }
     
-    const fields = [
-        { id: 'process', group: 'group-process' },
-        { id: 'baseThickness', group: 'group-thickness' },
-        { id: 'position', group: 'group-position' },
-        { id: 'material', group: 'group-material' }
-    ];
+    overlay.style.display = 'flex';
+    let idx = 0, countdown = 3, timer;
+    btnEl.disabled = true;
+    btnEl.textContent = '⏳ Preparando tus parámetros...';
 
-    fields.forEach(field => {
-        const el = document.getElementById(field.id);
-        if (el && !el.value) {
-            showError(field.group);
-            hasError = true;
+    function loadNext() {
+        if (idx >= ads.length) {
+            clearInterval(timer);
+            btnEl.disabled = false;
+            btnEl.textContent = '✅ VER MIS CÁLCULOS';
+            timerEl.textContent = '✨ ¡Listo! Haz clic para continuar';
+            return;
         }
-    });
-
-    const position = document.getElementById('position').value;
-    if (position && position.endsWith('F')) {
-        const weldSize = document.getElementById('weldSize').value;
-        if (!weldSize) {
-            showError('group-weldsize');
-            hasError = true;
-        }
+        imgEl.src = ads[idx].imagePath || ads[idx].image || '';
+        countdown = 3;
+        timerEl.textContent = `⏱️ Anuncio ${idx + 1}/2: ${countdown}s`;
+        btnEl.textContent = `⏳ Espere ${countdown}s...`;
+        timer = setInterval(() => {
+            countdown--;
+            if (countdown > 0) {
+                timerEl.textContent = `⏱️ Anuncio ${idx + 1}/2: ${countdown}s`;
+                btnEl.textContent = `⏳ Espere ${countdown}s...`;
+            } else { clearInterval(timer); idx++; loadNext(); }
+        }, 1000);
     }
-
-    return hasError;
-}
-
-function showError(groupId) {
-    const group = document.getElementById(groupId);
-    if (group && !group.classList.contains('error')) {
-        group.classList.add('error');
-        const errorMsg = document.createElement('div');
-        errorMsg.className = 'error-message';
-        errorMsg.textContent = 'Campo obligatorio';
-        group.appendChild(errorMsg);
-    }
-}
-
-window.clearError = function(groupId) {
-    const group = document.getElementById(groupId);
-    if (group) {
-        group.classList.remove('error');
-        const errorMsg = group.querySelector('.error-message');
-        if (errorMsg) errorMsg.remove();
-    }
-};
-
-function clearAllErrors() {
-    document.querySelectorAll('.form-group.error').forEach(el => {
-        el.classList.remove('error');
-        const errorMsg = el.querySelector('.error-message');
-        if (errorMsg) errorMsg.remove();
-    });
-}
-
-function scrollToFirstError() {
-    const firstError = document.querySelector('.form-group.error');
-    if (firstError) {
-        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
+    btnEl.onclick = () => { overlay.style.display = 'none'; btnEl.onclick = null; onContinue(); };
+    loadNext();
 }
 
 // =========================================
-// 🔒 VALIDACIONES PRO
-// =========================================
-window.checkProcessPro = function() {
-    const process = document.getElementById('process').value;
-    const isPro = localStorage.getItem('wps_pro_active') === 'true';
-    if (process && !FREE_PROCESSES.includes(process) && !isPro) {
-        checkProAccess('process');
-        document.getElementById('process').value = '';
-    }
-};
-
-window.checkMaterialPro = function() {
-    const material = document.getElementById('material').value;
-    const isPro = localStorage.getItem('wps_pro_active') === 'true';
-    if (material && !FREE_MATERIALS.includes(material) && !isPro) {
-        checkProAccess('material');
-        document.getElementById('material').value = '';
-    }
-};
-
-window.checkWeldSizePro = function() {
-    const size = document.getElementById('weldSize').value;
-    const isPro = localStorage.getItem('wps_pro_active') === 'true';
-    if (size && !FREE_SIZES.includes(size) && !isPro) {
-        checkProAccess('size');
-        document.getElementById('weldSize').value = '';
-    }
-};
-
-function checkProAccess(type) {
-    const isPro = localStorage.getItem('wps_pro_active') === 'true';
-    if (!isPro) {
-        const modal = document.getElementById('proModal');
-        const text = document.getElementById('modalText');
-        
-        const messages = {
-            'process': 'El proceso seleccionado requiere <span class="modal-highlight">WPS PRO</span>',
-            'material': 'Este material requiere <span class="modal-highlight">WPS PRO</span>',
-            'size': 'Tamaños >12mm requieren <span class="modal-highlight">WPS PRO</span>'
-        };
-        
-        text.innerHTML = messages[type] || messages['process'];
-        modal.style.display = 'flex';
-    }
-}
-
-window.goToActivation = function() {
-    closeProModal();
-    const tab2 = document.querySelector('.nav-tab:nth-child(2)');
-    if (tab2) tab2.click();
-};
-
-window.closeProModal = function() {
-    document.getElementById('proModal').style.display = 'none';
-};
-
-// =========================================
-// 💳 SIMULACIÓN DE PAGO
-// =========================================
-window.showSimulatePayment = function() {
-    const code = generateTestLicenseCode();
-    document.getElementById('generated-code').textContent = code;
-    document.getElementById('paymentModal').style.display = 'flex';
-};
-
-function generateTestLicenseCode() {
-    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-    let payload = '';
-    for (let i = 0; i < 6; i++) {
-        payload += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    let checksum = 0;
-    for (let i = 0; i < payload.length; i++) {
-        checksum += payload.charCodeAt(i);
-    }
-    checksum = checksum % 10;
-    return `WPS-PRO-${payload}-${checksum}`;
-}
-
-window.copyCode = function() {
-    const code = document.getElementById('generated-code').textContent;
-    navigator.clipboard.writeText(code).then(() => {
-        const btn = document.querySelector('.copy-btn');
-        const originalText = btn.textContent;
-        btn.textContent = '✅ ¡Copiado!';
-        setTimeout(() => {
-            btn.textContent = originalText;
-        }, 2000);
-    });
-};
-
-window.closePaymentModal = function() {
-    document.getElementById('paymentModal').style.display = 'none';
-};
-
-// =========================================
-// 🔑 ACTIVACIÓN PRO
-// =========================================
-window.activatePro = async function() {
-    const code = document.getElementById('license-code').value;
-    const statusDiv = document.getElementById('activation-status');
-    if (!code) {
-        statusDiv.innerHTML = '<div class="status-message error">⚠️ Ingresa un código de licencia</div>';
-        return;
-    }
-
-    statusDiv.innerHTML = '<div class="status-message info">⏳ Validando...</div>';
-
-    const result = await activatePro(code);
-
-    if (result.success) {
-        statusDiv.innerHTML = `<div class="status-message success">${result.message}</div>`;
-        setTimeout(() => {
-            statusDiv.innerHTML = '';
-            document.getElementById('license-code').value = '';
-        }, 2000);
-    } else {
-        statusDiv.innerHTML = `<div class="status-message error">${result.message}</div>`;
-    }
-};
-
-window.deactivatePro = deactivatePro;
-window.contactDeveloper = contactDeveloper;
-
-// =========================================
-// 🔍 CÁLCULO Y RESULTADOS
+// 🔍 CÁLCULO & RESULTADOS
 // =========================================
 window.mostrarResultados = function() {
     const data = {
@@ -331,194 +151,171 @@ window.mostrarResultados = function() {
         posicion: document.getElementById('position').value,
         material: document.getElementById('material').value,
         espesor: parseFloat(document.getElementById('baseThickness').value) || 0,
-        tipoJunta: document.getElementById('position').value.endsWith('F') ? 
-            'Filete' : (document.getElementById('weldingType') ? document.getElementById('weldingType').value : 'Tope'),
-        tamanoSoldadura: document.getElementById('weldSize').value,
-        gap: document.getElementById('position').value.endsWith('F') ? 
-            document.getElementById('fileteGap').value : 
-            (document.getElementById('gap').value || document.getElementById('squareGap').value),
+        tipoJunta: document.getElementById('position').value.endsWith('F') ? 'Filete' : (document.getElementById('weldingType')?.value || 'Tope'),
+        tamanoSoldadura: document.getElementById('weldSize').value || '00',
+        gap: document.getElementById('position').value.endsWith('F') ? document.getElementById('fileteGap').value : (document.getElementById('gap').value || document.getElementById('squareGap').value || '0'),
         angulo: document.getElementById('angle').value,
         tipoRanura: document.getElementById('grooveType').value,
         longitud: document.getElementById('weldLength').value
     };
-    
     const results = calcularWPSCompleto(data);
     displayResults(results, data);
-
+    
     document.getElementById('form-screen').style.display = 'none';
     document.getElementById('result-screen').style.display = 'block';
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    
+    window.hasCalculated = true;
+    showFloatingButtons();
+    saveToHistory(data);
+    incrementCounter('calculate_clicks');
 };
 
-function displayResults(results, data) {
-    document.getElementById('res-wps-id').textContent = results.wpsCode;
-    document.getElementById('res-process').textContent = data.proceso;
-    document.getElementById('res-position').textContent = data.posicion;
-    document.getElementById('res-material').textContent = data.material;
-    document.getElementById('res-thickness').textContent = data.espesor + ' mm';
-    document.getElementById('res-weld-size').textContent = (data.tamanoSoldadura || '00') + ' mm';
-    document.getElementById('res-weld-type').textContent = data.tipoJunta;
-    document.getElementById('res-gap').textContent = data.gap + ' mm';
-    document.getElementById('res-min-penetration').textContent = results.penMinima;
-
-    const esRanura = data.tipoJunta === 'Ranura Bisel';
-    document.getElementById('box-groove').style.display = esRanura ? 'block' : 'none';
-    document.getElementById('res-groove').textContent = data.tipoRanura || '-';
-
-    document.getElementById('box-rootface').style.display = esRanura ? 'block' : 'none';
-    document.getElementById('res-rootface').textContent = (document.getElementById('rootFace').value || '0') + ' mm';
-
-    document.getElementById('box-angle').style.display = esRanura ? 'block' : 'none';
-    document.getElementById('res-angle').textContent = results.anguloTotal;
-
-    const params = results.params;
-    document.getElementById('res-voltage').textContent = `${params.voltage.min}-${params.voltage.max} V`;
-    document.getElementById('res-amperage').textContent = `${params.amperage.min}-${params.amperage.max} A`;
-    document.getElementById('res-wfs').textContent = `${params.wfs.min}-${params.wfs.max} in/min`;
-    document.getElementById('res-travel').textContent = `${params.travelSpeed.min}-${params.travelSpeed.max} cm/min`;
-    document.getElementById('res-current').textContent = params.current;
-    document.getElementById('res-stickout').textContent = `${params.stickOut.min}-${params.stickOut.max} mm`;
-
-    document.getElementById('res-preheat').textContent = results.preheat;
-
-    const hiHTML = `Min: ${results.heatInput.min} | Max: ${results.heatInput.max}`;
-    document.getElementById('res-heat-input').innerHTML = hiHTML + results.heatInput.warning;
-
-    document.getElementById('res-transfer').textContent = 'Cortocircuito / Spray';
-    document.getElementById('res-work-angle').textContent = '90°';
-    document.getElementById('res-travel-angle').textContent = '10°-15° (Empuje)';
-
-    document.getElementById('res-electrode').textContent = 'Sólido ER70S-6';
-    document.getElementById('res-diameter').textContent = '1.2 mm (0.045")';
-    document.getElementById('res-class').textContent = 'AWS A5.18';
-    document.getElementById('res-gas-type').textContent = 'Mezcla';
-    document.getElementById('res-gas-mix').textContent = 'Ar 90% / CO2 10%';
-    document.getElementById('res-flow').textContent = '35-45 CFH';
-
-    const showConsumption = document.getElementById('showConsumption').checked;
-    if (showConsumption && results.consumos) {
+function displayResults(r, d) {
+    const set = (id, v) => { const el = document.getElementById(id); if(el) el.textContent = v || '-'; };
+    set('res-wps-id', r.wpsCode); set('res-process', d.proceso); set('res-position', d.posicion);
+    set('res-material', d.material); set('res-thickness', d.espesor + ' mm');
+    set('res-weld-size', d.tamanoSoldadura + ' mm'); set('res-weld-type', d.tipoJunta);
+    set('res-gap', (d.gap || '0') + ' mm'); set('res-min-penetration', r.penMinima);
+    set('res-angle', r.anguloTotal); set('res-groove', d.tipoRanura || '-');
+    set('res-rootface', (document.getElementById('rootFace').value || '0') + ' mm');
+    
+    const p = r.params;
+    set('res-voltage', `${p.voltage.min}-${p.voltage.max} V`);
+    set('res-amperage', `${p.amperage.min}-${p.amperage.max} A`);
+    set('res-wfs', `${p.wfs.min}-${p.wfs.max} in/min`);
+    set('res-travel', `${p.travelSpeed.min}-${p.travelSpeed.max} cm/min`);
+    set('res-current', p.current); set('res-stickout', `${p.stickOut.min}-${p.stickOut.max} mm`);
+    set('res-preheat', r.preheat);
+    document.getElementById('res-heat-input').innerHTML = `Min: ${r.heatInput.min} | Max: ${r.heatInput.max}` + (r.heatInput.warning || '');
+    set('res-transfer', 'Cortocircuito / Spray'); set('res-work-angle', '90°'); set('res-travel-angle', '10°-15° (Empuje)');
+    set('res-electrode', 'Sólido ER70S-6'); set('res-diameter', '1.2 mm (0.045")');
+    set('res-class', 'AWS A5.18'); set('res-gas-type', 'Mezcla'); set('res-gas-mix', 'Ar 90% / CO2 10%'); set('res-flow', '35-45 CFH');
+    
+    if (document.getElementById('showConsumption').checked && r.consumos) {
         document.getElementById('consumption-section').style.display = 'block';
-        document.getElementById('res-wire-cons').textContent = `~${results.consumos.wire.total} kg`;
-        document.getElementById('res-gas-cons').textContent = `~${results.consumos.gas.total} L`;
-    } else {
-        document.getElementById('consumption-section').style.display = 'none';
-    }
-
-    if (results.techNote) {
-        document.getElementById('tech-note').innerHTML = results.techNote;
-        document.getElementById('tech-note').style.display = 'block';
-    }
+        set('res-wire-cons', `~${r.consumos.wire.total} kg`); set('res-gas-cons', `~${r.consumos.gas.total} L`);
+    } else document.getElementById('consumption-section').style.display = 'none';
+    
+    if (r.techNote) { document.getElementById('tech-note').innerHTML = r.techNote; document.getElementById('tech-note').style.display = 'block'; }
 }
 
 window.volverFormulario = function() {
     document.getElementById('result-screen').style.display = 'none';
     document.getElementById('form-screen').style.display = 'block';
-    clearAllErrors();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    clearAllErrors(); window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
 // =========================================
-// 📤 EXPORTACIÓN A PDF
+// 📜 HISTORIAL LOCAL
 // =========================================
-window.exportarPDF = function() {
-    const wpsCode = document.getElementById('res-wps-id').textContent;
-    const originalTitle = document.title;
-    document.title = wpsCode;
-    window.print();
-    document.title = originalTitle;
+function saveToHistory(data) {
+    let h = JSON.parse(localStorage.getItem('wps_calc_history') || '[]');
+    h.unshift({ ...data, date: new Date().toLocaleString('es-ES') });
+    if (h.length > 5) h.pop();
+    localStorage.setItem('wps_calc_history', JSON.stringify(h));
+}
+window.loadHistory = function() {
+    const h = JSON.parse(localStorage.getItem('wps_calc_history') || '[]');
+    const list = document.getElementById('history-list');
+    if (!list) return;
+    list.innerHTML = h.length === 0 ? '<p style="text-align:center;color:var(--muted);padding:20px;">📭 Sin cálculos recientes</p>' 
+        : h.map((x, i) => `<div class="history-item" onclick="applyHistory(${i})"><span>${x.wpsCode || 'WPS'} - ${x.material} ${x.espesor}mm</span><small>${x.date}</small></div>`).join('');
+    document.getElementById('history-modal').style.display = 'flex';
+};
+window.applyHistory = function(i) {
+    const h = JSON.parse(localStorage.getItem('wps_calc_history') || '[]')[i];
+    if (!h) return;
+    document.getElementById('process').value = h.proceso;
+    document.getElementById('baseThickness').value = h.espesor;
+    document.getElementById('position').value = h.posicion;
+    document.getElementById('material').value = h.material;
+    if (h.tamanoSoldadura !== '00') document.getElementById('weldSize').value = h.tamanoSoldadura;
+    updateFormLogic();
+    closeModal('history-modal');
+    mostrarResultados();
 };
 
 // =========================================
-// 🔧 UTILIDADES
+// ☕ & 👥 BOTONES FLOTANTES
 // =========================================
+function showFloatingButtons() {
+    document.getElementById('coffee-btn')?.classList.add('visible');
+    document.getElementById('community-float-btn')?.classList.add('visible');
+}
+function updateCoffeeCount() {
+    let c = parseInt(localStorage.getItem('wps_coffee_count') || '187');
+    if (Math.random() < 0.3 && window.hasCalculated) c++;
+    localStorage.setItem('wps_coffee_count', c);
+    const el = document.getElementById('coffee-count'); if (el) el.textContent = c;
+}
+window.openCoffeeModal = function() { incrementCounter('coffee_clicks'); document.getElementById('coffee-modal').style.display = 'flex'; };
+
+// =========================================
+// 📤 EXPORTAR PDF
+// =========================================
+window.openExportModal = function() {
+    document.getElementById('export-filename').value = document.getElementById('res-wps-id')?.textContent || 'WPS-Documento';
+    document.getElementById('export-pdf-modal').style.display = 'flex';
+};
+window.confirmExport = function() {
+    const name = (document.getElementById('export-filename').value || 'WPS-Documento').replace(/[<>:"/\\|?*\x00-\x1F]/g, '').trim();
+    const orig = document.title; document.title = name;
+    window.print(); document.title = orig;
+    closeModal('export-pdf-modal'); incrementCounter('successful_exports');
+};
+
+// =========================================
+// 🔒 PRO & UTILIDADES
+// =========================================
+window.checkProcessPro = checkProFeature(FREE_PROCESSES);
+window.checkMaterialPro = checkProFeature(FREE_MATERIALS);
+window.checkWeldSizePro = checkProFeature(FREE_SIZES);
+function checkProFeature(list) { return function() {
+    if (this.value && !list.includes(this.value) && localStorage.getItem('wps_pro_active') !== 'true') {
+        incrementCounter('pro_attempts');
+        document.getElementById('modalText').innerHTML = 'Esta opción requiere <span class="modal-highlight">WPS PRO</span>';
+        document.getElementById('proModal').style.display = 'flex'; this.value = '';
+    }
+};}
+window.goToActivation = () => { closeModal('proModal'); switchTab('activation-screen', document.querySelector('.nav-tab:nth-child(2)')); };
+window.closeProModal = () => closeModal('proModal');
+window.activatePro = async function() {
+    const c = document.getElementById('license-code').value.trim();
+    const s = document.getElementById('activation-status');
+    if (!c) return s.innerHTML = '<div class="status-message error">⚠️ Ingresa un código</div>';
+    s.innerHTML = '<div class="status-message info">⏳ Validando...</div>';
+    const r = await activatePro(c);
+    s.innerHTML = `<div class="status-message ${r.success ? 'success' : 'error'}">${r.message}</div>`;
+    if (r.success) setTimeout(() => { s.innerHTML = ''; document.getElementById('license-code').value = ''; }, 2000);
+};
 window.validateFileteGap = function() {
-    const gap = parseFloat(document.getElementById('fileteGap').value);
-    const warning = document.getElementById('gapWarning');
-    const input = document.getElementById('fileteGap');
-    if (!isNaN(gap) && gap > 5) {
-        warning.style.display = 'block';
-        input.classList.add('warning-input');
-    } else {
-        warning.style.display = 'none';
-        input.classList.remove('warning-input');
-    }
+    const g = parseFloat(document.getElementById('fileteGap').value);
+    const w = document.getElementById('gapWarning'), i = document.getElementById('fileteGap');
+    if (g > 5) { w.style.display = 'block'; i.classList.add('warning-input'); }
+    else { w.style.display = 'none'; i.classList.remove('warning-input'); }
 };
-
-window.toggleConsumptionFields = function() {
-    const show = document.getElementById('showConsumption').checked;
-    document.getElementById('consumptionInputs').style.display = show ? 'block' : 'none';
-};
-// =========================================
-// 📱 TRACK NEW DEVICE (CONEXIÓN REAL)
-// =========================================
-async function trackNewDevice() {
-    // Verificar si ya contamos este dispositivo antes
-    const hasBeenCounted = localStorage.getItem('wps_first_visit');
-    
-    if (!hasBeenCounted) {
-        // Marcar como contado para no repetir
-        localStorage.setItem('wps_first_visit', 'true');
-        console.log('📱 Nuevo dispositivo registrado');
-        
-        // 👇 Intentar enviar el dato a Firebase
-        try {
-            const analyticsRef = doc(db, 'analytics', 'global_stats');
-            const snapshot = await getDoc(analyticsRef);
-            
-            // Si ya existen datos, sumamos 1 al actual. Si no, empezamos en 1.
-            let currentCount = 0;
-            if (snapshot.exists()) {
-                currentCount = snapshot.data().new_devices || 0;
-            }
-            
-            await setDoc(analyticsRef, { 
-                new_devices: currentCount + 1,
-                lastUpdated: new Date().toISOString()
-            }, { merge: true }); // merge: true crea el doc si no existe o actualiza si existe
-            
-        } catch (error) {
-            console.warn("⚠️ No se pudo conectar con la base de datos:", error);
-        }
-    }
-}
+window.toggleConsumptionFields = function() { document.getElementById('consumptionInputs').style.display = document.getElementById('showConsumption').checked ? 'block' : 'none'; };
+window.copyDeviceId = function() { const t = document.getElementById('user-device-id')?.textContent.trim(); if(t && t!=='Cargando...') navigator.clipboard.writeText(t).then(() => alert('✅ Copiado: '+t)); };
+window.closeModal = function(id) { document.getElementById(id).style.display = 'none'; };
+window.closeLogoutModal = () => closeModal('logoutModal');
+window.confirmLogout = function() { closeModal('logoutModal'); deactivatePro(); location.reload(); };
 
 // =========================================
-// 📊 INCREMENTAR CONTADOR GENÉRICO
+// 📊 CONTADORES FIREBASE
 // =========================================
-async function incrementCounter(counterName) {
-    if (!navigator.onLine) {
-        console.warn('⚠️ Offline:', counterName);
-        return;
-    }
-    
+async function incrementCounter(key) {
+    if (!navigator.onLine) return;
     try {
-        const analyticsRef = doc(db, 'analytics', 'global_stats');
-        const snapshot = await getDoc(analyticsRef);
-        
-        let currentCount = 0;
-        if (snapshot.exists()) {
-            currentCount = snapshot.data()[counterName] || 0;
-        }
-        
-        await setDoc(analyticsRef, { 
-            [counterName]: currentCount + 1,
-            lastUpdated: new Date().toISOString()
-        }, { merge: true });
-        
-    } catch (error) {
-        console.warn("⚠️ Error en contador:", error);
+        const ref = doc(db, 'analytics', 'global_stats');
+        const snap = await getDoc(ref);
+        let cur = snap.exists() ? snap.data()[key] || 0 : 0;
+        await setDoc(ref, { [key]: cur + 1, lastUpdated: new Date().toISOString() }, { merge: true });
+    } catch (e) { console.warn('⚠️ Contador offline:', e); }
+}
+function trackNewDevice() {
+    if (!localStorage.getItem('wps_first_visit')) {
+        localStorage.setItem('wps_first_visit', 'true');
+        incrementCounter('new_devices');
     }
 }
-// =========================================
-// 📋 COPIAR ID DE DISPOSITIVO
-// =========================================
-window.copyDeviceId = function() {
-    const el = document.getElementById('user-device-id');
-    const text = el.textContent.trim();
-    
-    if (text && text !== 'Cargando...') {
-        navigator.clipboard.writeText(text).then(() => {
-            alert('✅ ID copiado al portapapeles: ' + text);
-        });
-    }
-};
