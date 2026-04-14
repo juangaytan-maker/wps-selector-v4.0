@@ -47,7 +47,8 @@ function checkTerms() {
     }
 }
 window.acceptTerms = function() {
-    localStorage.setItem('wps_terms_v1_accepted', 'true');    isTermsAccepted = true;
+    localStorage.setItem('wps_terms_v1_accepted', 'true');
+    isTermsAccepted = true;
     closeModal('terms-modal');
 };
 
@@ -96,7 +97,8 @@ window.updateFormLogic = function() {
     } else if (position.endsWith('G')) {
         const type = document.getElementById('grooveType') ? 'bevel' : 'square';
         document.getElementById(`condition-${type}`).style.display = 'block';
-    }};
+    }
+};
 
 function hideAllConditionalSections() {
     ['condition-filete', 'condition-bevel', 'condition-square'].forEach(id => {
@@ -145,7 +147,8 @@ function validateRequiredFields() {
 
     fields.forEach(field => {
         const val = document.getElementById(field.id)?.value;
-        if (!val) { showError(field.group); hasError = true; }    });
+        if (!val) { showError(field.group); hasError = true; }
+    });
 
     const pos = document.getElementById('position')?.value;
     if (pos?.endsWith('F')) {
@@ -194,7 +197,8 @@ function showInterstitialAd(ads, onContinue) {
     if (!overlay) { onContinue(); return; }
     
     const imgEl = document.getElementById('interstitial-ad-img');
-    const btnEl = document.getElementById('interstitial-btn');    const timerEl = document.getElementById('interstitial-timer');
+    const btnEl = document.getElementById('interstitial-btn');
+    const timerEl = document.getElementById('interstitial-timer');
     
     overlay.style.display = 'flex';
     let idx = 0;
@@ -243,7 +247,8 @@ function showInterstitialAd(ads, onContinue) {
 // 🔍 CÁLCULO Y RESULTADOS
 // =========================================
 window.mostrarResultados = function() {
-    const data = {        proceso: document.getElementById('process').value,
+    const data = {
+        proceso: document.getElementById('process').value,
         posicion: document.getElementById('position').value,
         material: document.getElementById('material').value,
         espesor: parseFloat(document.getElementById('baseThickness').value) || 0,
@@ -292,7 +297,8 @@ function displayResults(results, data) {
     set('res-current', p.current);
     set('res-stickout', `${p.stickOut.min}-${p.stickOut.max} mm`);
     set('res-preheat', results.preheat);
-    set('res-heat-input', `Min: ${results.heatInput.min} | Max: ${results.heatInput.max}`);    set('res-transfer', 'Cortocircuito / Spray');
+    set('res-heat-input', `Min: ${results.heatInput.min} | Max: ${results.heatInput.max}`);
+    set('res-transfer', 'Cortocircuito / Spray');
     set('res-work-angle', '90°');
     set('res-travel-angle', '10°-15° (Empuje)');
     set('res-electrode', 'Sólido ER70S-6');
@@ -341,7 +347,8 @@ function typeEffect(id, text) {
 
 window.volverFormulario = function() {
     document.querySelector('.app-layout').classList.remove('results-active');
-    clearAllErrors();};
+    clearAllErrors();
+};
 
 // =========================================
 // 📜 HISTORIAL LOCAL + URL HASH
@@ -390,7 +397,8 @@ window.applyHistory = function(idx) {
 };
 
 function updateUrlHash(data) {
-    const hash = new URLSearchParams({        proc: data.proceso, pos: data.posicion, mat: data.material, 
+    const hash = new URLSearchParams({
+        proc: data.proceso, pos: data.posicion, mat: data.material, 
         esp: data.espesor, tam: data.tamanoSoldadura
     }).toString();
     window.location.hash = hash;
@@ -439,7 +447,8 @@ window.trackCoffee = function() {
 // 📤 EXPORTACIÓN PDF + QR
 // =========================================
 window.openExportModal = function() {
-    const code = document.getElementById('res-wps-id')?.textContent || 'WPS-Documento';    const input = document.getElementById('export-filename');
+    const code = document.getElementById('res-wps-id')?.textContent || 'WPS-Documento';
+    const input = document.getElementById('export-filename');
     if (input) input.value = code;
     document.getElementById('export-pdf-modal').style.display = 'flex';
 };
@@ -488,7 +497,8 @@ function generateQR(code, data) {
     ctx.fillRect(10,10,16,16); ctx.fillRect(54,10,16,16); ctx.fillRect(10,54,16,16);
 }
 
-// =========================================// 🔒 VALIDACIONES PRO & UTILIDADES
+// =========================================
+// 🔒 VALIDACIONES PRO & UTILIDADES
 // =========================================
 window.checkProcessPro = checkProFeature(FREE_PROCESSES, 'process');
 window.checkMaterialPro = checkProFeature(FREE_MATERIALS, 'material');
@@ -532,4 +542,44 @@ window.activatePro = async function() {
     if (!code) return status.innerHTML = '<div class="status-message error">⚠️ Ingresa un código</div>';
     status.innerHTML = '<div class="status-message info">⏳ Validando...</div>';
     const res = await activatePro(code);
-    status.innerHTML = `<div class
+    status.innerHTML = `<div class="status-message ${res.success ? 'success' : 'error'}">${res.message}</div>`;
+    if (res.success) setTimeout(() => { status.innerHTML = ''; document.getElementById('license-code').value = ''; }, 2000);
+};
+
+window.validateFileteGap = function() {
+    const gap = parseFloat(document.getElementById('fileteGap').value);
+    const warn = document.getElementById('gapWarning');
+    const inp = document.getElementById('fileteGap');
+    if (gap > 5) { warn.style.display = 'block'; inp.classList.add('warning-input'); }
+    else { warn.style.display = 'none'; inp.classList.remove('warning-input'); }
+};
+window.toggleConsumptionFields = function() {
+    document.getElementById('consumptionInputs').style.display = document.getElementById('showConsumption').checked ? 'block' : 'none';
+};
+
+// =========================================
+// 📊 CONTADORES ADMIN (FIREBASE)
+// =========================================
+function incrementCounter(key) {
+    if (navigator.onLine) {
+        const ref = doc(db, 'analytics', 'global_stats');
+        getDoc(ref).then(snap => {
+            const data = snap.exists() ? snap.data() : {};
+            updateDoc(ref, { [key]: (data[key] || 0) + 1, last_updated: new Date() });
+        }).catch(() => console.warn('⚠️ Sync offline:', key));
+    }
+}
+
+// =========================================
+// 🛠️ UTILIDADES GLOBALES
+// =========================================
+window.closeModal = function(id) { document.getElementById(id).style.display = 'none'; };
+window.closeLogoutModal = () => closeModal('logoutModal');
+window.confirmLogout = function() {
+    closeModal('logoutModal');
+    deactivatePro(); // Usa la lógica de pro-system
+    location.reload();
+};
+window.copyDeviceId = function() {
+    navigator.clipboard.writeText(document.getElementById('user-device-id')?.textContent || '');
+};
