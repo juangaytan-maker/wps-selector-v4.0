@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>WPS Admin Panel</title>
+    <style>
+        :root {
+            --bg-dark: #1a1a2e; --bg-card: #16213e; --primary: #e94560;
+            --success: #00d9ff; --warning: #fca311; --error: #ff4d4d;
+            --text: #ffffff; --muted: #a0a0a0; --input-bg: #0f172a;
+            --input-border: #334155; --radius: 6px;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg-dark); color: var(--text); padding: 20px; min-height: 100vh; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        
+        /* LOGIN */
+        .login-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.92); display: flex; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(5px); }
+        .login-box { background: var(--bg-card); padding: 30px; border-radius: 12px; text-align: center; width: 100%; max-width: 320px; border: 1px solid var(--input-border); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        
+        /* UI COMPONENTS */
+        input, select { width: 100%; padding: 11px; margin: 8px 0 15px; background: var(--input-bg); border: 1px solid var(--input-border); color: white; border-radius: var(--radius); font-size: 0.9rem; }
+        input:focus { outline: none; border-color: var(--success); box-shadow: 0 0 0 3px rgba(0, 217, 255, 0.15); }
+        .btn { padding: 11px 16px; border: none; border-radius: var(--radius); cursor: pointer; font-weight: 600; transition: 0.2s; }
+        .btn-primary { background: var(--success); color: #000; }
+        .btn-warning { background: var(--warning); color: #000; }
+        .btn-danger { background: var(--error); color: white; }
+        .btn-dark { background: #334155; color: white; }
+        .btn:hover { opacity: 0.9; transform: translateY(-1px); }
+        
+        /* DASHBOARD */
+        #admin-dashboard { display: none; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 2px solid var(--primary); }
+        h1 { font-size: 1.4rem; letter-spacing: 1px; }
+        
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 20px; }
+        .stat-card { background: var(--bg-card); padding: 15px; border-radius: 8px; text-align: center; border: 1px solid var(--input-border); }
+        .stat-value { font-size: 1.8rem; font-weight: 800; color: var(--warning); margin: 5px 0; font-family: monospace; }
+        .stat-label { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        .section { background: var(--bg-card); padding: 20px; border-radius: 10px; margin-bottom: 20px; border: 1px solid var(--input-border); }
+        h2 { margin: 0 0 15px; color: var(--success); font-size: 1.1rem; border-bottom: 1px solid var(--input-border); padding-bottom: 8px; }
+        .form-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; margin-bottom: 15px; }
+        .form-row > div { flex: 1; min-width: 200px; }
+        .form-row label { display: block; font-size: 0.75rem; color: var(--muted); margin-bottom: 4px; }
+        .form-row input { margin: 0; }
+        .form-row .btn { margin: 0; height: 41px; }
+        
+        /* TABLES */        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.85rem; }
+        th { background: rgba(0,0,0,0.3); padding: 10px; text-align: left; color: var(--muted); font-weight: 600; text-transform: uppercase; font-size: 0.7rem; border-bottom: 2px solid var(--input-border); }
+        td { padding: 10px; border-bottom: 1px solid var(--input-border); vertical-align: middle; }
+        .status-badge { padding: 4px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: 600; display: inline-block; }
+        .status-active { background: rgba(0, 217, 255, 0.15); color: var(--success); }
+        .status-inactive { background: rgba(255, 77, 77, 0.15); color: var(--error); }
+        .action-btn { padding: 5px 8px; margin: 2px; border: none; border-radius: 4px; cursor: pointer; font-size: 0.75rem; background: #334155; color: white; transition: 0.2s; }
+        .action-btn:hover { background: #475569; }
+        .action-btn.danger { background: var(--error); }
+        
+        /* TOASTS */
+        #toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+        .toast { background: var(--bg-card); color: white; padding: 12px 16px; border-radius: 8px; border-left: 4px solid var(--success); box-shadow: 0 4px 12px rgba(0,0,0,0.5); animation: slideIn 0.3s ease; pointer-events: auto; }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        
+        @media (max-width: 768px) {
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .form-row { flex-direction: column; align-items: stretch; }
+            table, thead, tbody, th, td, tr { display: block; }
+            thead tr { position: absolute; top: -9999px; left: -9999px; }
+            tr { margin-bottom: 10px; background: rgba(255,255,255,0.03); padding: 10px; border-radius: 6px; }
+            td { border: none; position: relative; padding-left: 50%; text-align: right; }
+            td:before { position: absolute; top: 10px; left: 10px; width: 45%; padding-right: 10px; white-space: nowrap; font-weight: bold; text-align: left; content: attr(data-label); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 🔐 LOGIN OVERLAY -->
+    <div id="login-overlay" class="login-overlay">
+        <div class="login-box">
+            <div style="font-size: 3rem; margin-bottom: 10px;">🔐</div>
+            <h2 style="color: var(--warning); margin-bottom: 5px;">Admin Panel</h2>
+            <p style="color: var(--muted); font-size: 0.85rem; margin-bottom: 20px;">Acceso restringido</p>
+            <input type="password" id="admin-password" placeholder="Contraseña de administrador" onkeydown="if(event.key==='Enter') verifyAdmin()">
+            <button class="btn btn-primary" onclick="verifyAdmin()">Ingresar</button>
+            <div id="login-error" style="color: var(--error); font-size: 0.8rem; margin-top: 10px; display: none;"></div>
+        </div>
+    </div>
+
+    <!-- 🛠️ DASHBOARD -->
+    <div id="admin-dashboard" class="container">
+        <div class="header">
+            <h1>🛠️ WPS Selector Admin</h1>
+            <button class="btn btn-danger" onclick="logoutAdmin()">🚪 Cerrar Sesión</button>
+        </div>
+
+        <!-- 📊 ESTADÍSTICAS DE USO ANÓNIMAS -->
+        <div class="section">
+            <h2>📈 Estadísticas de Uso (Tiempo Real)</h2>            <div class="stats-grid">
+                <div class="stat-card"><div class="stat-value" id="stat-new-devices">0</div><div class="stat-label">📱 Nuevos Dispositivos</div></div>
+                <div class="stat-card"><div class="stat-value" id="stat-calculate-clicks">0</div><div class="stat-label">🔍 Cálculos Realizados</div></div>
+                <div class="stat-card"><div class="stat-value" id="stat-successful-exports">0</div><div class="stat-label">📄 PDFs Exportados</div></div>
+                <div class="stat-card"><div class="stat-value" id="stat-coffee-clicks">0</div><div class="stat-label">☕ Clics "Invítame un café"</div></div>
+                <div class="stat-card"><div class="stat-value" id="stat-community-clicks">0</div><div class="stat-label">👥 Clics Comunidad</div></div>
+                <div class="stat-card"><div class="stat-value" id="stat-pro-attempts">0</div><div class="stat-label">🔑 Intentos Activación PRO</div></div>
+            </div>
+        </div>
+
+        <!-- 📊 ESTADÍSTICAS DE LICENCIAS -->
+        <div class="stats-grid" style="margin-bottom: 25px;">
+            <div class="stat-card"><div class="stat-value" id="stat-total">0</div><div class="stat-label">Total Licencias</div></div>
+            <div class="stat-card"><div class="stat-value" id="stat-active">0</div><div class="stat-label">Activas</div></div>
+            <div class="stat-card"><div class="stat-value" id="stat-inactive">0</div><div class="stat-label">Inactivas</div></div>
+        </div>
+
+        <!-- 🔑 GESTIÓN DE LICENCIAS -->
+        <div class="section">
+            <h2>🔑 Gestión de Licencias PRO</h2>
+            <div class="form-row">
+                <div>
+                    <label>📱 ID del Dispositivo (Opcional)</label>
+                    <input type="text" id="device-id-input" placeholder="Ej: DEV-X7Y9Z2A1">
+                    <small style="color: var(--muted); font-size: 0.7rem;">Si lo dejas vacío, se asignará automáticamente al activar.</small>
+                </div>
+                <div style="flex: 0 0 auto; display: flex; gap: 8px;">
+                    <button class="btn btn-warning" onclick="generateLicense()">➕ Generar Licencia</button>
+                    <button class="btn btn-dark" onclick="loadLicenses()">🔄 Actualizar</button>
+                </div>
+            </div>
+            <table>
+                <thead><tr><th data-label="Código">Código de Licencia</th><th data-label="Dispositivo">Dispositivo Asignado</th><th data-label="Estado">Estado</th><th data-label="Fecha">Fecha Creación</th><th data-label="Acciones">Acciones</th></tr></thead>
+                <tbody id="licenses-tbody"><tr><td colspan="5" style="text-align:center; padding: 20px; color: var(--muted);">⏳ Cargando licencias...</td></tr></tbody>
+            </table>
+        </div>
+
+        <!-- 📢 GESTIÓN DE ANUNCIOS -->
+        <div class="section">
+            <h2>📢 Gestión de Anuncios (Firebase)</h2>
+            <div class="form-row">
+                <div><label>Nombre</label><input type="text" id="ad-name" placeholder="Ej: Banner Principal"></div>
+                <div><label>Ruta/URL Imagen</label><input type="text" id="ad-path" placeholder="/ads/banner1.jpg o https://..."></div>
+                <div><label>Enlace Destino</label><input type="text" id="ad-link" placeholder="https://wa.me/..."></div>
+                <div><label>Peso (1-10)</label><input type="number" id="ad-weight" placeholder="5" min="1" max="10" value="5"></div>
+                <div style="flex: 0 0 auto;"><button class="btn btn-warning" style="height: 41px;" onclick="addNewAd()">💾 Guardar Anuncio</button></div>
+            </div>
+            <table>
+                <thead><tr><th data-label="Nombre">Nombre</th><th data-label="Vista Previa">Vista Previa</th><th data-label="Link">Link</th><th data-label="Peso">Peso</th><th data-label="Estado">Estado</th><th data-label="Acciones">Acciones</th></tr></thead>
+                <tbody id="ads-tbody"><tr><td colspan="6" style="text-align:center; padding: 20px; color: var(--muted);">⏳ Cargando anuncios...</td></tr></tbody>            </table>
+        </div>
+    </div>
+
+    <!-- TOAST CONTAINER -->
+    <div id="toast-container"></div>
+
+    <!-- SCRIPT MODULE -->
+    <script type="module" src="js/admin.js"></script>
+</body>
+</html>

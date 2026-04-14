@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>WPS Selector Pro</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1a1a2e">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+</head>
+<body>
+
+    <!-- 📜 MODAL TÉRMINOS Y CONDICIONES (Primer Ingreso) -->
+    <div id="terms-modal" class="modal-overlay">
+        <div class="modal-content terms-modal">
+            <div class="modal-icon">📋</div>
+            <div class="modal-title">Términos de Uso y Copyright</div>
+            <div class="modal-text" style="text-align: left; max-height: 200px; overflow-y: auto; font-size: 0.85rem;">
+                <p><strong>© 2026 WPS Selector Pro.</strong> Todos los derechos reservados.</p>
+                <p>Esta herramienta es de carácter informativo y técnico. Los parámetros generados son referenciales según AWS D1.1 y no sustituyen la validación profesional en campo, cálculos estructurales certificados ni la supervisión de un ingeniero calificado.</p>
+                <p>Al utilizar esta aplicación, aceptas que el desarrollador <strong>no se responsabiliza</strong> por daños, fallas estructurales, incidentes o incumplimientos normativos derivados del uso directo o indirecto de esta información.</p>
+                <p>El uso de la app implica la aceptación plena de estos términos.</p>
+            </div>
+            <label class="checkbox-group" style="margin-bottom: 15px;">
+                <input type="checkbox" id="terms-checkbox">
+                <span>He leído y acepto los términos de uso.</span>
+            </label>
+            <button id="accept-terms-btn" class="btn btn-pro" disabled onclick="acceptTerms()">✅ Aceptar y Continuar</button>
+        </div>
+    </div>
+
+    <!-- 🌐 HEADER GLOBAL ESTÁTICO -->
+    <nav id="global-nav">
+        <div class="nav-container">
+            <a href="index.html" class="nav-item active">🏠 Inicio</a>
+            <a href="#about" class="nav-item" onclick="alert('📝 Sección Acerca de nosotros (Próximamente)')">ℹ️ Acerca de</a>
+            <div class="nav-dropdown">
+                <button class="nav-item dropdown-trigger">🛠️ Más herramientas ▾</button>
+                <div class="dropdown-menu">
+                    <a href="#" class="dropdown-item">📱 App 1: Calculadora de Costos</a>
+                    <a href="#" class="dropdown-item">📊 App 2: Tracker de Soldaduras</a>
+                    <a href="#" class="dropdown-item">📏 App 3: Convertidor AWS/ISO</a>
+                </div>
+            </div>
+            <a href="#consumables" class="nav-item" onclick="alert('🛒 Sección Consumibles (Próximamente)')">🧪 Consumibles</a>
+            <a href="#" class="nav-item" onclick="document.getElementById('community-modal').style.display='flex'">👥 Comunidad</a>
+        </div>
+    </nav>
+    <!-- 📦 CONTENEDOR PRINCIPAL -->
+    <div class="container">
+        <!-- HEADER APP -->
+        <header>
+            <h1>WPS SELECTOR <span id="header-badge">FREE</span></h1>
+            <h2>Matriz WPS | AWS D1.1</h2>
+        </header>
+
+        <!-- NAVEGACIÓN TABS -->
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="switchTab('form-screen', this)">🔧 Selector</button>
+            <button class="nav-tab" onclick="switchTab('activation-screen', this)">🔑 Activar PRO</button>
+        </div>
+
+        <!-- 📐 LAYOUT RESPONSIVO (Formulario + Resultados) -->
+        <div class="app-layout">
+            
+            <!-- 📝 PANTALLA FORMULARIO -->
+            <div id="form-screen" class="screen active">
+                <div class="form-group" id="group-process">
+                    <label>Proceso de Soldadura</label>
+                    <select id="process" onchange="checkProcessPro()">
+                        <option value="">-- Seleccionar --</option>
+                        <option value="GMAW">GMAW</option>
+                        <option value="FCAW">FCAW</option>
+                        <option value="GTAW">GTAW</option>
+                        <option value="SAW">SAW</option>
+                        <option value="SMAW">SMAW</option>
+                    </select>
+                </div>
+
+                <div class="form-group" id="group-thickness">
+                    <label>Espesor Placa Base (mm)</label>
+                    <input type="number" id="baseThickness" placeholder="Ej: 10" min="1" max="200" step="0.5">
+                </div>
+
+                <div class="form-group" id="group-position">
+                    <label>Posición (AWS)</label>
+                    <select id="position" onchange="updateFormLogic()">
+                        <option value="">-- Seleccionar --</option>
+                        <option value="1F">1F (Plano)</option>
+                        <option value="2F">2F (Horizontal)</option>
+                        <option value="3F">3F (Vertical Asc)</option>
+                        <option value="4F">4F (Sobre Cabeza)</option>
+                        <option value="1G">1G (Plano)</option>
+                        <option value="2G">2G (Horizontal)</option>
+                        <option value="3G">3G (Vertical)</option>
+                        <option value="4G">4G (Sobre Cabeza)</option>
+                    </select>                </div>
+
+                <div class="form-group" id="group-material">
+                    <label>Tipo de Material</label>
+                    <select id="material" onchange="checkMaterialPro()">
+                        <option value="">-- Seleccionar --</option>
+                        <option value="A36">A36</option>
+                        <option value="A500">A500</option>
+                        <option value="A516-70">A516 Gr. 70</option>
+                        <option value="A53">A53</option>
+                        <option value="A514/T1">A514/T1</option>
+                        <option value="A572-50">A572 Gr. 50</option>
+                        <option value="A588">A588</option>
+                        <option value="Hardox400">Hardox 400</option>
+                        <option value="Hardox450">Hardox 450</option>
+                        <option value="Hardox500">Hardox 500</option>
+                        <option value="Hardox600">Hardox 600</option>
+                        <option value="Hadfield">Acero Manganeso (Hadfield)</option>
+                        <option value="AISI-1045-1060">Alto Carbono</option>
+                        <option value="Fundicion">Fundición</option>
+                        <option value="D2-H13">Herramientas</option>
+                    </select>
+                </div>
+
+                <div id="condition-filete" class="conditional-section">
+                    <div class="section-title">⚡ Configuración Filete</div>
+                    <div class="form-group" id="group-weldsize">
+                        <label>Tamaño de Soldadura (mm)</label>
+                        <select id="weldSize" onchange="checkWeldSizePro()">
+                            <option value="">-- Seleccionar --</option>
+                            <option value="6">6 mm</option>
+                            <option value="8">8 mm</option>
+                            <option value="10">10 mm</option>
+                            <option value="12">12 mm</option>
+                            <option value="16">16 mm</option>
+                            <option value="18">18 mm</option>
+                            <option value="20">20 mm</option>
+                            <option value="22">22 mm</option>
+                            <option value="24">24 mm</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Separación / Gap (mm)</label>
+                        <input type="number" id="fileteGap" placeholder="0 - 5" min="0" max="5" step="0.5" oninput="validateFileteGap()">
+                        <div id="gapWarning" class="gap-warning">⚠️ Gap > 5mm: Ajustar junta o usar WPS especial.</div>
+                    </div>
+                </div>
+
+                <div id="condition-bevel" class="conditional-section">
+                    <div class="section-title">🔧 Bevel Groove Settings</div>                    <div class="form-group" id="group-groove">
+                        <label>Tipo de Ranura</label>
+                        <select id="grooveType">
+                            <option value="Sencillo">Sencillo (Single V)</option>
+                            <option value="V">V (Double V)</option>
+                            <option value="U">U (Double U)</option>
+                            <option value="J">J (Double J)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Separación / Gap (mm)</label>
+                        <input type="number" id="gap" placeholder="2 - 3" min="0" max="10" step="0.5">
+                    </div>
+                    <div class="form-group">
+                        <label>Talón / Root Face (mm)</label>
+                        <input type="number" id="rootFace" placeholder="1 - 2" min="0" max="5" step="0.5">
+                    </div>
+                    <div class="form-group">
+                        <label>Ángulo del Bisel (° por placa)</label>
+                        <input type="number" id="angle" placeholder="Ej: 30" min="15" max="45">
+                    </div>
+                </div>
+
+                <div id="condition-square" class="conditional-section">
+                    <div class="section-title">🔧 Square Groove Settings</div>
+                    <div class="form-group">
+                        <label>Separación / Gap (mm)</label>
+                        <input type="number" id="squareGap" placeholder="0 - 2" min="0" max="5" step="0.5">
+                    </div>
+                </div>
+
+                <label class="checkbox-group" onclick="toggleConsumptionFields()">
+                    <input type="checkbox" id="showConsumption">
+                    <span>☑ Mostrar consumo estimado</span>
+                </label>
+
+                <div id="consumptionInputs" style="display: none; margin-top: 10px;">
+                    <div class="form-group">
+                        <label>Longitud de Soldadura (metros)</label>
+                        <input type="number" id="weldLength" placeholder="Ingresa la longitud total" min="0.1" step="0.1">
+                    </div>
+                </div>
+
+                <button class="btn btn-search" onclick="validarYMostrarAnuncio(mostrarResultados)">🔍 BUSCAR PARÁMETROS</button>
+                
+                <!-- 📜 HISTORIAL LOCAL -->
+                <button class="btn btn-action" style="margin-top: 8px; font-size: 0.85rem;" onclick="loadHistory()">📜 Historial de Cálculos</button>
+            </div>
+
+            <!-- 📊 PANTALLA RESULTADOS -->            <div id="result-screen" class="screen">
+                <div class="result-header">
+                    <div class="wps-id" id="res-wps-id">WPS-GEN AWS D1.1</div>
+                    <span id="res-badge" class="badge">AWS D1.1</span>
+                </div>
+
+                <div class="section-title">📋 Configuración Seleccionada</div>
+                <div class="param-grid config">
+                    <div class="param-box"><div class="param-label">Proceso</div><div id="res-process" class="param-value">-</div></div>
+                    <div class="param-box"><div class="param-label">Posición</div><div id="res-position" class="param-value">-</div></div>
+                    <div class="param-box"><div class="param-label">Material</div><div id="res-material" class="param-value">-</div></div>
+                    <div class="param-box"><div class="param-label">Espesor</div><div id="res-thickness" class="param-value">-</div></div>
+                    <div class="param-box"><div class="param-label">Tamaño Sold.</div><div id="res-weld-size" class="param-value">-</div></div>
+                    <div class="param-box"><div class="param-label">Tipo Junta</div><div id="res-weld-type" class="param-value">-</div></div>
+                </div>
+
+                <div class="param-grid">
+                    <div class="param-box"><div class="param-label">Gap</div><div id="res-gap" class="param-value">-</div></div>
+                    <div class="param-box" id="box-groove" style="display:none;"><div class="param-label">Ranura</div><div id="res-groove" class="param-value">-</div></div>
+                    <div class="param-box" id="box-rootface" style="display:none;"><div class="param-label">Talón</div><div id="res-rootface" class="param-value">-</div></div>
+                    <div class="param-box" id="box-angle" style="display:none;"><div class="param-label">Ángulo Total</div><div id="res-angle" class="param-value">-</div></div>
+                    <div class="param-box"><div class="param-label">Pen. Mín. Req.</div><div id="res-min-penetration" class="param-value">-</div></div>
+                </div>
+
+                <div class="section-title">⚡ Parámetros Eléctricos</div>
+                <div class="param-grid">
+                    <div class="param-box"><div class="param-label">Voltaje</div><div id="res-voltage" class="param-value highlight">-</div></div>
+                    <div class="param-box"><div class="param-label">Amperaje</div><div id="res-amperage" class="param-value highlight">-</div></div>
+                    <div class="param-box"><div class="param-label">WFS</div><div id="res-wfs" class="param-value">-</div></div>
+                    <div class="param-box"><div class="param-label">Velocidad</div><div id="res-travel" class="param-value">-</div></div>
+                    <div class="param-box"><div class="param-label">Corriente</div><div id="res-current" class="param-value">-</div></div>
+                </div>
+
+                <div class="section-title">📐 Técnicas & Preheat</div>
+                <div class="param-grid">
+                    <div class="param-box"><div class="param-label">Stick Out</div><div id="res-stickout" class="param-value">-</div></div>
+                    <div class="param-box"><div class="param-label">Preheat</div><div id="res-preheat" class="param-value warning">-</div></div>
+                    <div class="param-box" style="grid-column: span 2;"><div class="param-label">Heat Input</div><div id="res-heat-input" class="param-value">-</div></div>
+                    <div class="param-box"><div class="param-label">Transferencia</div><div id="res-transfer" class="param-value">-</div></div>
+                    <div class="param-box"><div class="param-label">Áng. Trabajo</div><div id="res-work-angle" class="param-value">-</div></div>
+                    <div class="param-box"><div class="param-label">Áng. Avance</div><div id="res-travel-angle" class="param-value">-</div></div>
+                </div>
+
+                <div class="section-title">🧪 Consumibles y Gas</div>
+                <div class="param-grid three-col">
+                    <div class="param-box"><div class="param-label">Electrodo</div><div id="res-electrode" class="param-value">-</div></div>
+                    <div class="param-box"><div class="param-label">Diámetro</div><div id="res-diameter" class="param-value">-</div></div>
+                    <div class="param-box"><div class="param-label">Clasif. AWS</div><div id="res-class" class="param-value">-</div></div>
+                    <div class="param-box"><div class="param-label">Gas Prot.</div><div id="res-gas-type" class="param-value">-</div></div>
+                    <div class="param-box"><div class="param-label">Mezcla %</div><div id="res-gas-mix" class="param-value">-</div></div>                    <div class="param-box"><div class="param-label">Caudal</div><div id="res-flow" class="param-value">-</div></div>
+                </div>
+
+                <div id="consumption-section" style="display:none;">
+                    <div class="section-title">📊 Consumo Estimado</div>
+                    <div class="param-grid">
+                        <div class="param-box"><div class="param-label">Alambre Total</div><div id="res-wire-cons" class="param-value">-</div></div>
+                        <div class="param-box"><div class="param-label">Gas Total</div><div id="res-gas-cons" class="param-value">-</div></div>
+                    </div>
+                </div>
+
+                <!-- 📱 QR PARA IMPRESIÓN -->
+                <canvas id="wps-qr" width="80" height="80" style="margin: 10px auto; display: block; border: 1px solid var(--input-border); border-radius: 4px;"></canvas>
+
+                <div id="tech-note" class="tech-note" style="display:none;"></div>
+
+                <!-- ⚠️ DISCLAIMER COLAPSABLE -->
+                <details class="disclaimer-box">
+                    <summary>⚠️ Aviso Legal y Exención de Responsabilidad</summary>
+                    <p style="font-size: 0.75rem; color: var(--muted); margin-top: 5px; line-height: 1.4;">
+                        Los parámetros generados por esta herramienta son referenciales según AWS D1.1 y están sujetos a variaciones por condiciones ambientales, pureza de gases, desgaste de consumibles y técnica del soldador. 
+                        El soldador, inspector o ingeniero responsable es quien debe validar, calificar y ajustar estos valores en campo antes de su aplicación en estructuras críticas. 
+                        El desarrollador no garantiza resultados exactos y no se hace responsable por fallas, rework o incidentes derivados del uso directo de esta información.
+                    </p>
+                </details>
+
+                <div class="result-actions">
+                    <button class="btn btn-back" onclick="volverFormulario()">🔙 VOLVER</button>
+                    <button class="btn btn-action" onclick="openExportModal()">📤 EXPORTAR PDF</button>
+                </div>
+            </div>
+
+        </div> <!-- Fin .app-layout -->
+
+        <!-- 🔑 PANTALLA ACTIVACIÓN PRO -->
+        <div id="activation-screen" class="screen">
+            <div id="pro-not-active">
+                <div class="activation-card">
+                    <div class="pro-icon">🔒</div>
+                    <h3 style="margin-bottom: 10px;">WPS SELECTOR PRO</h3>
+                    <p style="color: var(--muted); font-size: 0.9rem; margin-bottom: 15px;">Desbloquea todas las funciones</p>
+                    <ul class="pro-features">
+                        <li>Todos los procesos (FCAW, GTAW, SAW, SMAW)</li>
+                        <li>Materiales avanzados (Hardox, HSLA, Hardfacing)</li>
+                        <li>Tamaños de soldadura ilimitados</li>
+                        <li>Sin publicidad</li>
+                        <li>Exportación PDF sin límites</li>
+                        <li>Soporte prioritario</li>
+                    </ul>
+                    <input type="text" id="license-code" class="license-input" placeholder="Ingresa tu código de licencia">                    <button class="btn btn-pro" onclick="activatePro()">🔓 ACTIVAR AHORA</button>
+                    <div class="device-id-box">
+                        Tu ID de dispositivo: <code id="user-device-id" onclick="copyDeviceId()">Cargando...</code>
+                        <small style="display:block; margin-top:4px; cursor:pointer; color: var(--warning);" onclick="contactDeveloper()">📞 Contactar al Desarrollador</small>
+                    </div>
+                    <div id="activation-status"></div>
+                </div>
+                <button class="btn btn-action" style="margin-top: 10px;" onclick="showSimulatePayment()">💳 Simular Pago (Test)</button>
+            </div>
+
+            <div id="pro-active" style="display:none;">
+                <div class=
