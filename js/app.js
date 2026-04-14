@@ -483,6 +483,33 @@ async function trackNewDevice() {
 }
 
 // =========================================
+// 📊 INCREMENTAR CONTADOR GENÉRICO
+// =========================================
+async function incrementCounter(counterName) {
+    if (!navigator.onLine) {
+        console.warn('⚠️ Offline:', counterName);
+        return;
+    }
+    
+    try {
+        const analyticsRef = doc(db, 'analytics', 'global_stats');
+        const snapshot = await getDoc(analyticsRef);
+        
+        let currentCount = 0;
+        if (snapshot.exists()) {
+            currentCount = snapshot.data()[counterName] || 0;
+        }
+        
+        await setDoc(analyticsRef, { 
+            [counterName]: currentCount + 1,
+            lastUpdated: new Date().toISOString()
+        }, { merge: true });
+        
+    } catch (error) {
+        console.warn("⚠️ Error en contador:", error);
+    }
+}
+// =========================================
 // 📋 COPIAR ID DE DISPOSITIVO
 // =========================================
 window.copyDeviceId = function() {
