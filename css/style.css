@@ -264,7 +264,7 @@ input.static-field { background-color: #1e293b; color: var(--warning); font-weig
 .ad-container { 
     width: 100%; 
     max-width: 500px; 
-    height: 50px; /* Altura fija más pequeña */
+    height: 40px; /* Altura fija más pequeña */
     margin: 0 10px; 
     overflow: hidden; 
     border-radius: 6px; 
@@ -363,7 +363,7 @@ input.static-field { background-color: #1e293b; color: var(--warning); font-weig
     
     /* En desktop el contenedor puede ser un poco más alto */
     .ad-container {
-        height: 80px;
+        height: 50px;
     }
 }
 
