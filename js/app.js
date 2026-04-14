@@ -558,15 +558,53 @@ window.toggleConsumptionFields = function() {
 };
 
 // =========================================
-// 📊 CONTADORES ADMIN (FIREBASE)
+// 📊 CONTADORES ANALYTICS (FIREBASE)
 // =========================================
-function incrementCounter(key) {
-    if (navigator.onLine) {
-        const ref = doc(db, 'analytics', 'global_stats');
-        getDoc(ref).then(snap => {
-            const data = snap.exists() ? snap.data() : {};
-            updateDoc(ref, { [key]: (data[key] || 0) + 1, last_updated: new Date() });
-        }).catch(() => console.warn('⚠️ Sync offline:', key));
+function incrementCounter(counterName) {
+    // Verificar si estamos online
+    if (!navigator.onLine) {
+        console.warn('⚠️ Sync offline:', counterName);
+        return;
+    }
+    
+    try {
+        const { doc, getDoc, updateDoc, increment } = require('./firebase-config.js');
+        const analyticsRef = doc(db, 'analytics', 'global_stats');
+        
+        // Intentar actualizar o crear el documento
+        getDoc(analyticsRef).then((docSnap) => {
+            if (docSnap.exists()) {
+                // Documento existe, actualizar contador
+                updateDoc(analyticsRef, {
+                    [counterName]: increment(1),
+                    lastUpdated: new Date().toISOString()
+                });
+            } else {
+                // Documento no existe, crearlo
+                const { setDoc } = require('./firebase-config.js');
+                setDoc(analyticsRef, {
+                    [counterName]: 1,
+                    lastUpdated: new Date().toISOString()
+                });
+            }
+        }).catch((error) => {
+            console.warn('⚠️ Error actualizando analytics:', error);
+        });
+        
+    } catch (error) {
+        console.warn('⚠️ Error en incrementCounter:', error);
+    }
+}
+
+// =========================================
+// 📱 TRACK NEW DEVICE
+// =========================================
+function trackNewDevice() {
+    const hasBeenCounted = localStorage.getItem('wps_first_visit');
+    
+    if (!hasBeenCounted) {
+        localStorage.setItem('wps_first_visit', 'true');
+        incrementCounter('new_devices');
     }
 }
 
