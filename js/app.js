@@ -16,6 +16,7 @@ import {
 } from './pro-system.js';
 
 import { initAds } from './ads-manager.js';
+import { db, doc, setDoc, getDoc } from './firebase-config.js'; 
 
 // =========================================
 // 📚 CONSTANTES
@@ -447,17 +448,37 @@ window.toggleConsumptionFields = function() {
     const show = document.getElementById('showConsumption').checked;
     document.getElementById('consumptionInputs').style.display = show ? 'block' : 'none';
 };
-
 // =========================================
-// 📱 TRACK NEW DEVICE (Solo una vez)
+// 📱 TRACK NEW DEVICE (CONEXIÓN REAL)
 // =========================================
-function trackNewDevice() {
+async function trackNewDevice() {
+    // Verificar si ya contamos este dispositivo antes
     const hasBeenCounted = localStorage.getItem('wps_first_visit');
     
     if (!hasBeenCounted) {
+        // Marcar como contado para no repetir
         localStorage.setItem('wps_first_visit', 'true');
-        // Aquí iría el contador de analytics si lo implementas
         console.log('📱 Nuevo dispositivo registrado');
+        
+        // 👇 Intentar enviar el dato a Firebase
+        try {
+            const analyticsRef = doc(db, 'analytics', 'global_stats');
+            const snapshot = await getDoc(analyticsRef);
+            
+            // Si ya existen datos, sumamos 1 al actual. Si no, empezamos en 1.
+            let currentCount = 0;
+            if (snapshot.exists()) {
+                currentCount = snapshot.data().new_devices || 0;
+            }
+            
+            await setDoc(analyticsRef, { 
+                new_devices: currentCount + 1,
+                lastUpdated: new Date().toISOString()
+            }, { merge: true }); // merge: true crea el doc si no existe o actualiza si existe
+            
+        } catch (error) {
+            console.warn("⚠️ No se pudo conectar con la base de datos:", error);
+        }
     }
 }
 
