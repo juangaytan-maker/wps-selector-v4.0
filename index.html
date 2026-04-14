@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#1a1a2e">
-    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="mobile-fweb-app-capable" content="yes">
     <meta name="mobile-web-app-status-bar-style" content="black-translucent">
 </head>
 <body>
@@ -71,7 +71,7 @@
             <!-- 📝 PANTALLA FORMULARIO -->
             <div id="form-screen" class="screen active">
                 <div class="form-group" id="group-process">
-                    <label>Proceso de Soldadura</label>
+                    <label for="process">Proceso de Soldadura</label>
                     <select id="process" onchange="checkProcessPro()">
                         <option value="">-- Seleccionar --</option>
                         <option value="GMAW">GMAW</option>
@@ -83,12 +83,12 @@
                 </div>
 
                 <div class="form-group" id="group-thickness">
-                    <label>Espesor Placa Base (mm)</label>
+                    <label for="number">Espesor Placa Base (mm)</label>
                     <input type="number" id="baseThickness" placeholder="Ej: 10" min="1" max="200" step="0.5">
                 </div>
 
                 <div class="form-group" id="group-position">
-                    <label>Posición (AWS)</label>
+                    <label for="position">Posición (AWS)</label>
                     <select id="position" onchange="updateFormLogic()">
                         <option value="">-- Seleccionar --</option>
                         <option value="1F">1F (Plano)</option>
@@ -102,7 +102,7 @@
                     </select>                </div>
 
                 <div class="form-group" id="group-material">
-                    <label>Tipo de Material</label>
+                    <label for="material">Tipo de Material</label>
                     <select id="material" onchange="checkMaterialPro()">
                         <option value="">-- Seleccionar --</option>
                         <option value="A36">A36</option>
@@ -126,7 +126,7 @@
                 <div id="condition-filete" class="conditional-section">
                     <div class="section-title">⚡ Configuración Filete</div>
                     <div class="form-group" id="group-weldsize">
-                        <label>Tamaño de Soldadura (mm)</label>
+                        <label for="weldSize">Tamaño de Soldadura (mm)</label>
                         <select id="weldSize" onchange="checkWeldSizePro()">
                             <option value="">-- Seleccionar --</option>
                             <option value="6">6 mm</option>
@@ -141,7 +141,7 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>Separación / Gap (mm)</label>
+                        <label for="number">Separación / Gap (mm)</label>
                         <input type="number" id="fileteGap" placeholder="0 - 5" min="0" max="5" step="0.5" oninput="validateFileteGap()">
                         <div id="gapWarning" class="gap-warning">⚠️ Gap > 5mm: Ajustar junta o usar WPS especial.</div>
                     </div>
@@ -149,7 +149,7 @@
 
                 <div id="condition-bevel" class="conditional-section">
                     <div class="section-title">🔧 Bevel Groove Settings</div>                    <div class="form-group" id="group-groove">
-                        <label>Tipo de Ranura</label>
+                        <label for="groovType">Tipo de Ranura</label>
                         <select id="grooveType">
                             <option value="Sencillo">Sencillo (Single V)</option>
                             <option value="V">V (Double V)</option>
@@ -158,15 +158,15 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>Separación / Gap (mm)</label>
+                        <label for="number">Separación / Gap (mm)</label>
                         <input type="number" id="gap" placeholder="2 - 3" min="0" max="10" step="0.5">
                     </div>
                     <div class="form-group">
-                        <label>Talón / Root Face (mm)</label>
+                        <label for="number">Talón / Root Face (mm)</label>
                         <input type="number" id="rootFace" placeholder="1 - 2" min="0" max="5" step="0.5">
                     </div>
                     <div class="form-group">
-                        <label>Ángulo del Bisel (° por placa)</label>
+                        <label for="number">Ángulo del Bisel (° por placa)</label>
                         <input type="number" id="angle" placeholder="Ej: 30" min="15" max="45">
                     </div>
                 </div>
@@ -174,7 +174,7 @@
                 <div id="condition-square" class="conditional-section">
                     <div class="section-title">🔧 Square Groove Settings</div>
                     <div class="form-group">
-                        <label>Separación / Gap (mm)</label>
+                        <label for="number">Separación / Gap (mm)</label>
                         <input type="number" id="squareGap" placeholder="0 - 2" min="0" max="5" step="0.5">
                     </div>
                 </div>
@@ -186,7 +186,7 @@
 
                 <div id="consumptionInputs" style="display: none; margin-top: 10px;">
                     <div class="form-group">
-                        <label>Longitud de Soldadura (metros)</label>
+                        <label for="number">Longitud de Soldadura (metros)</label>
                         <input type="number" id="weldLength" placeholder="Ingresa la longitud total" min="0.1" step="0.1">
                     </div>
                 </div>
