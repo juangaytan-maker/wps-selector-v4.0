@@ -132,7 +132,7 @@
                 
                 <div class="form-group" id="group-process">
                     <label for="process">Proceso de Soldadura</label>
-                    <select id="process" onchange="checkProcessPro()">
+                    <select id="process" onchange="checkProcessPro(this)">
                         <option value="">-- Seleccionar --</option>
                         <option value="GMAW">GMAW</option>
                         <option value="FCAW">FCAW</option>
@@ -164,7 +164,7 @@
 
                 <div class="form-group" id="group-material">
                     <label for="material">Tipo de Material</label>
-                    <select id="material" onchange="checkMaterialPro()">
+                    <select id="material" onchange="checkMaterialPro(this)">
                         <option value="">-- Seleccionar --</option>
                         <option value="A36">A36</option>
                         <option value="A500">A500</option>
@@ -189,7 +189,7 @@
                     <div class="section-title">⚡ Configuración Filete</div>
                     <div class="form-group" id="group-weldsize">
                         <label for="weldSize">Tamaño de Soldadura (mm)</label>
-                        <select id="weldSize" onchange="checkWeldSizePro()">
+                        <select id="weldSize" onchange="checkWeldSizePro(this)">
                             <option value="">-- Seleccionar --</option>
                             <option value="6">6 mm</option>
                             <option value="8">8 mm</option>
