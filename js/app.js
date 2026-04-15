@@ -186,7 +186,7 @@ function validateRequiredFields() {
     // Campos base obligatorios
     ['process', 'baseThickness', 'position', 'material'].forEach(id => {
         if (!document.getElementById(id)?.value) { 
-            showError('group-' + id.replace(/([A-Z])/g, '-$1').toLowerCase()); 
+            showFormError('group-' + id.replace(/([A-Z])/g, '-$1').toLowerCase()); // ← RENOMBRADO
             err = true; 
         }
     });
@@ -194,14 +194,14 @@ function validateRequiredFields() {
     // Validación adicional: tamaño de soldadura para filetes
     if (document.getElementById('position').value?.endsWith('F') && 
         !document.getElementById('weldSize').value) {
-        showError('group-weldsize'); 
+        showFormError('group-weldsize'); // ← RENOMBRADO
         err = true;
     }
     return err;
 }
 
-// Muestra mensaje de error en un grupo de formulario
-function showError(id) {
+// Muestra mensaje de error en un grupo de formulario [⚠️ RENOMBRADO]
+function showFormError(id) { // ← CAMBIADO DE showError A showFormError
     const g = document.getElementById(id);
     if (g && !g.classList.contains('error')) {
         g.classList.add('error');
@@ -671,11 +671,11 @@ window.toggleConsumptionFields = function() {
         document.getElementById('showConsumption').checked ? 'block' : 'none'; 
 };
 
-// Copiar ID de dispositivo al portapapeles
+// Copiar ID de dispositivo al portapapeles [✅ CON NOTIFICACIÓN TOAST]
 window.copyDeviceId = function() { 
     const t = document.getElementById('user-device-id')?.textContent.trim(); 
     if(t && t!=='Cargando...') {
-        navigator.clipboard.writeText(t).then(() => alert('✅ Copiado: '+t)); 
+        navigator.clipboard.writeText(t).then(() => showSuccess(`ID copiado: ${t}`, 'Copiado')); // ← REEMPLAZADO alert()
     }
 };
 
@@ -771,7 +771,7 @@ function trackNewDevice() {
 // 🔒 FUNCIONES INTERNAS (no exponer):
 //   • hideAllConditionalSections() → Helper de formulario
 //   • validateRequiredFields()     → Validación base
-//   • showError() / clearAllErrors() → Manejo de errores
+//   • showFormError() / clearAllErrors() → Manejo de errores [⚠️ RENOMBRADO]
 //   • scrollToFirstError()         → UX de validación
 //   • checkProFeature()            → Factory de validadores PRO
 //   • generateTestLicenseCode()    → Generador de códigos test
