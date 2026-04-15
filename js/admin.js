@@ -1,10 +1,22 @@
 /**
-🛠️ ADMIN PANEL LOGIC (v2.0 - CORREGIDO Y OPTIMIZADO)
-- Eliminados todos los errores de sintaxis (espacios rotos)
-- HTML de modales corregido para evitar errores de string
-- Funciones de Firebase seguras
+🛠️ ADMIN PANEL LOGIC (v2.1 - CON ANALYTICS CORREGIDO)
+- Agregado getDoc para leer analytics
+- Función loadAnalytics() para mostrar contadores reales
+- Sincronización con Firestore
 */
-import { db, collection, getDocs, doc, updateDoc, deleteDoc, query, orderBy, setDoc, addDoc } from './firebase-config.js';
+import { 
+    db, 
+    collection, 
+    getDocs, 
+    getDoc,  // ← AGREGADO: Para leer documento único
+    doc, 
+    updateDoc, 
+    deleteDoc, 
+    query, 
+    orderBy, 
+    setDoc, 
+    addDoc 
+} from './firebase-config.js';
 
 const ADMIN_PASSWORD = "Dan1&diego"; // ⚠️ TU CONTRASEÑA DE ADMIN
 
@@ -45,9 +57,9 @@ function showConfirmModal(message, onConfirm) {
     modal.className = 'modal-overlay';
     modal.style.cssText = 'display:flex;justify-content:center;align-items:center;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:5000;padding:20px;backdrop-filter:blur(4px);';
     
-    // CORREGIDO: HTML limpio sin errores de string
     modal.innerHTML = `
-        <div style="background:#16213e;border:2px solid #ff4d4d;border-radius:12px;padding:24px;max-width:360px;width:100%;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,0.6);">            <div style="font-size:2.5rem;margin-bottom:10px;">⚠️</div>
+        <div style="background:#16213e;border:2px solid #ff4d4d;border-radius:12px;padding:24px;max-width:360px;width:100%;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,0.6);">
+            <div style="font-size:2.5rem;margin-bottom:10px;">⚠️</div>
             <h3 style="color:#ff4d4d;margin-bottom:12px;">Confirmar Acción</h3>
             <p style="color:#a0a0a0;margin-bottom:20px;font-size:0.9rem;line-height:1.4;">${message}</p>
             <div style="display:flex;gap:10px;">
@@ -96,7 +108,72 @@ function showDashboard() {
     document.getElementById('login-overlay').style.display = 'none';
     document.getElementById('admin-dashboard').style.display = 'block';
     loadLicenses();
-    loadAds();    updateStats();
+    loadAds();
+    updateStats();
+    loadAnalytics();  // ← AGREGADO: Cargar contadores reales de analytics
+}
+
+// =========================================
+// 📊 CARGAR ANALYTICS (CONTADORES REALES)
+// =========================================
+async function loadAnalytics() {
+    try {
+        // Leer el documento global_stats de analytics
+        const docRef = doc(db, 'analytics', 'global_stats');
+        const snap = await getDoc(docRef);
+        
+        if (snap.exists()) {
+            const data = snap.data();
+            
+            // Mapeo de campos: [ID del elemento en HTML, campo en Firestore]
+            const fields = [
+                ['stat-new-devices', 'new_devices'],
+                ['stat-calculate-clicks', 'calculate_clicks'],
+                ['stat-successful-exports', 'successful_exports'],
+                ['stat-coffee-clicks', 'coffee_clicks'],
+                ['stat-community-clicks', 'community_clicks'],
+                ['stat-pro-attempts', 'pro_attempts']
+            ];
+            
+            // Actualizar cada elemento del DOM
+            fields.forEach(([elementId, firestoreField]) => {
+                const el = document.getElementById(elementId);
+                if (el) {
+                    const value = data[firestoreField] ?? 0;
+                    // Animación suave de números
+                    animateNumber(el, parseInt(el.textContent) || 0, value);
+                }
+            });
+            
+            // Actualizar fecha de última actualización si existe
+            if (data.lastUpdated) {
+                const dateEl = document.getElementById('stat-last-updated');
+                if (dateEl) {
+                    const date = new Date(data.lastUpdated);
+                    dateEl.textContent = date.toLocaleString('es-ES');
+                }
+            }
+        }
+    } catch (e) {
+        console.warn('⚠️ Error cargando analytics:', e);
+    }
+}
+
+// Animación suave para números (efecto visual)
+function animateNumber(element, start, end, duration = 500) {
+    let startTime = null;
+    
+    function step(timestamp) {
+        if (!startTime) startTime = timestamp;
+        const progress = Math.min((timestamp - startTime) / duration, 1);
+        const value = Math.floor(progress * (end - start) + start);
+        element.textContent = value.toLocaleString('es-ES');
+        
+        if (progress < 1) {
+            window.requestAnimationFrame(step);
+        }
+    }
+    window.requestAnimationFrame(step);
 }
 
 // =========================================
@@ -113,14 +190,16 @@ window.generateLicense = async function() {
             code: licenseCode, 
             status: 'active', 
             assignedDeviceId: customDeviceId || null,
-            createdAt: createdAt, // CORREGIDO: sin espacio
+            createdAt: createdAt,
             createdBy: 'admin'
         });
 
         if (deviceIdInput) deviceIdInput.value = '';
         const msg = customDeviceId ? `Asignada a: <strong>${customDeviceId}</strong>` : 'Se asignará automáticamente al activar';
         showToast(`Código: <strong style="color:#fca311">${licenseCode}</strong><br><small>${msg}</small>`, '✅ Licencia Generada', 'success', 6000);
-        loadLicenses(); updateStats();
+        loadLicenses(); 
+        updateStats();
+        loadAnalytics(); // ← Actualizar analytics también
     } catch (error) {
         console.error('Error:', error);
         showToast(error.message, '❌ Error al Generar', 'error');
@@ -145,7 +224,8 @@ window.loadLicenses = async function() {
     if (!tbody) return;
     tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;">⏳ Cargando...</td></tr>';
 
-    try {        const q = query(collection(db, 'licenses'), orderBy('createdAt', 'desc'));
+    try {
+        const q = query(collection(db, 'licenses'), orderBy('createdAt', 'desc'));
         const querySnapshot = await getDocs(q);
 
         if (querySnapshot.empty) {
@@ -157,7 +237,6 @@ window.loadLicenses = async function() {
         querySnapshot.forEach((docSnap) => {
             const data = docSnap.data();
             const licenseId = docSnap.id;
-            // CORREGIDO: sin espacio en el nombre de la clase
             const statusClass = data.status === 'active' ? 'status-active' : 'status-inactive';
             const statusText = data.status === 'active' ? '✅ Activa' : '❌ Inactiva';
             const date = data.createdAt ? new Date(data.createdAt).toLocaleDateString('es-ES') : 'N/A';
@@ -189,39 +268,49 @@ window.loadLicenses = async function() {
 window.copyLicense = function(code) {
     navigator.clipboard.writeText(code).then(() => showToast('Código copiado', '📋 Listo'));
 };
+
 window.revokeLicense = async function(licenseId) {
     showConfirmModal('¿Revocar esta licencia? El usuario perderá acceso PRO.', async () => {
         try {
             await updateDoc(doc(db, 'licenses', licenseId), { status: 'inactive' });
             showToast('Licencia revocada', '🚫 Actualizado', 'warning');
-            loadLicenses(); updateStats();        } catch (e) { showToast(e.message, 'Error', 'error'); }
+            loadLicenses(); 
+            updateStats();
+        } catch (e) { showToast(e.message, 'Error', 'error'); }
     });
 };
+
 window.activateLicense = async function(licenseId) {
     try {
         await updateDoc(doc(db, 'licenses', licenseId), { status: 'active' });
         showToast('Licencia activada', '✅ Actualizado');
-        loadLicenses(); updateStats();
+        loadLicenses(); 
+        updateStats();
     } catch (e) { showToast(e.message, 'Error', 'error'); }
 };
+
 window.deleteLicense = async function(licenseId) {
     showConfirmModal('¿Eliminar PERMANENTEMENTE? Esta acción no se puede deshacer.', async () => {
         try {
             await deleteDoc(doc(db, 'licenses', licenseId));
             showToast('Licencia eliminada', '🗑️ Eliminado', 'info');
-            loadLicenses(); updateStats();
+            loadLicenses(); 
+            updateStats();
         } catch (e) { showToast(e.message, 'Error', 'error'); }
     });
 };
 
 // =========================================
-// 📊 ESTADÍSTICAS BÁSICAS
+// 📊 ESTADÍSTICAS DE LICENCIAS
 // =========================================
 async function updateStats() {
     try {
         const snap = await getDocs(collection(db, 'licenses'));
         let total = 0, active = 0, inactive = 0;
-        snap.forEach(d => { total++; d.data().status === 'active' ? active++ : inactive++; });
+        snap.forEach(d => { 
+            total++; 
+            d.data().status === 'active' ? active++ : inactive++; 
+        });
         const elTotal = document.getElementById('stat-total');
         const elActive = document.getElementById('stat-active');
         const elInactive = document.getElementById('stat-inactive');
@@ -243,7 +332,13 @@ window.addNewAd = async function() {
     if (!name || !path) return showToast('Nombre y Ruta son obligatorios', '⚠️ Error', 'warning');
 
     try {
-        await addDoc(collection(db, 'ads'), {             name, link, imagePath: path, weight, active: true, createdAt: new Date().toISOString() 
+        await addDoc(collection(db, 'ads'), {
+            name, 
+            link, 
+            imagePath: path, 
+            weight, 
+            active: true, 
+            createdAt: new Date().toISOString()
         });
         showToast('Anuncio creado', '✅ Listo');
         loadAds();
@@ -282,7 +377,9 @@ window.loadAds = async function() {
             </tr>`;
         });
         tbody.innerHTML = html;
-    } catch (e) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#ff4d4d;">Error</td></tr>'; }
+    } catch (e) { 
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#ff4d4d;">Error</td></tr>'; 
+    }
 };
 
 window.toggleAd = async function(adId, newStatus) {
@@ -292,6 +389,7 @@ window.toggleAd = async function(adId, newStatus) {
         loadAds();
     } catch (e) { showToast(e.message, '❌ Error', 'error'); }
 };
+
 window.deleteAd = async function(adId) {
     showConfirmModal('¿Eliminar este anuncio permanentemente?', async () => {
         try {
@@ -303,6 +401,19 @@ window.deleteAd = async function(adId) {
 };
 
 // =========================================
+// 🔄 REFRESCAR DATOS (Botón manual)
+// =========================================
+window.refreshAllData = function() {
+    showToast('Actualizando datos...', '🔄 Cargando', 'info', 2000);
+    loadLicenses();
+    loadAds();
+    updateStats();
+    loadAnalytics(); // ← También refrescar analytics
+};
+
+// =========================================
 // 🚀 INICIALIZACIÓN
 // =========================================
-document.addEventListener('DOMContentLoaded', () => { checkAdminAuth(); });
+document.addEventListener('DOMContentLoaded', () => { 
+    checkAdminAuth(); 
+});
