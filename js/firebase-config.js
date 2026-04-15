@@ -1,5 +1,5 @@
 /* ============================================================================
-   🔥 FIREBASE CONFIGURATION - v4.2
+   🔥 FIREBASE CONFIGURATION - v4.2 (CORREGIDO)
    ============================================================================
    Descripción: Configuración e inicialización de Firebase para WPS Selector Pro
    Proyecto: wps-selector-db-490f2
@@ -16,7 +16,8 @@ import {
     getDoc, 
     setDoc, 
     updateDoc, 
-    increment 
+    increment,
+    collection  // ← AGREGADO: Necesario para ads-manager.js
 } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
 // ── Configuración de tu proyecto Firebase ──
@@ -24,21 +25,4 @@ const firebaseConfig = {
     apiKey: "AIzaSyCtmTJxhO49aqVtrS0MA_-dUO1UF3smF50",
     authDomain: "wps-selector-db-490f2.firebaseapp.com",
     projectId: "wps-selector-db-490f2",
-    storageBucket: "wps-selector-db-490f2.firebasestorage.app",
-    messagingSenderId: "831276563180",
-    appId: "1:831276563180:web:526724a2a4b5e3c16203c9"
-};
-
-// ── Inicializar Firebase ──
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-// ── Exportar para usar en otros módulos ──
-export { 
-    db, 
-    doc, 
-    getDoc, 
-    setDoc, 
-    updateDoc, 
-    increment 
-};
+    storageBucket: "wps-selector-db-490f
