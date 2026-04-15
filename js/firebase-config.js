@@ -20,7 +20,8 @@ import {
     query,
     where,
     addDoc,
-    onSnapshot
+    onSnapshot,
+    deleteDoc  // ← AGREGADO: Para Admin Panel
 } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
 // ── Configuración de tu proyecto Firebase ──
@@ -50,5 +51,6 @@ export {
     query,
     where,
     addDoc,
-    onSnapshot
+    onSnapshot,
+    deleteDoc  // ← AGREGADO: Para Admin Panel
 };
