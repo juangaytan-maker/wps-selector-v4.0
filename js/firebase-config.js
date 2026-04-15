@@ -1,11 +1,9 @@
 /* ============================================================================
-   🔥 FIREBASE CONFIGURATION - v4.2 (CORREGIDO)
+   🔥 FIREBASE CONFIGURATION - v4.2 (FINAL - TODAS LAS EXPORTACIONES)
    ============================================================================
-   Descripción: Configuración e inicialización de Firebase para WPS Selector Pro
+   Descripción: Configuración completa de Firebase con TODAS las exportaciones
    Proyecto: wps-selector-db-490f2
    Última actualización: 2025
-   
-   ⚠️ IMPORTANTE: Este archivo usa módulos ES6. No cambiar los imports.
    ============================================================================ */
 
 // ── Imports desde CDN de Firebase (versión 10.7.1) ──
@@ -14,10 +12,15 @@ import {
     getFirestore, 
     doc, 
     getDoc, 
+    getDocs,
     setDoc, 
     updateDoc, 
     increment,
-    collection  // ← AGREGADO: Necesario para ads-manager.js
+    collection,
+    query,
+    where,
+    addDoc,
+    onSnapshot
 } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
 // ── Configuración de tu proyecto Firebase ──
@@ -34,13 +37,18 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// ── Exportar para usar en otros módulos ──
+// ── Exportar TODO lo que pueda necesitar la app ──
 export { 
     db, 
     doc, 
     getDoc, 
+    getDocs,
     setDoc, 
     updateDoc, 
     increment,
-    collection  // ← AGREGADO: Exportar collection
+    collection,
+    query,
+    where,
+    addDoc,
+    onSnapshot
 };
