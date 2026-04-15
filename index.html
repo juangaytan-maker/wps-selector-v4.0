@@ -1,6 +1,38 @@
+<!-- ============================================================================
+   📄 WPS SELECTOR PRO - INDEX.HTML v4.2 (MAINTAINABLE EDITION)
+   ============================================================================
+   Descripción: Estructura principal de la aplicación WPS Selector Pro
+   Última actualización: 2025
+   Autor: Juan Gaytán
+   
+   📋 ÍNDICE DE SECCIONES:
+   ────────────────────────────────────────────────────────────────────────
+   01. 📄 ENCABEZADO & METADATOS (SEO, PWA, Responsive)
+   02. 📜 MODAL TÉRMINOS Y CONDICIONES (Primer Ingreso)
+   03. 🌐 NAVEGACIÓN GLOBAL ESTÁTICA (Header principal)
+   04. 📦 CONTENEDOR PRINCIPAL & HEADER APP
+   05. 🧭 PESTAÑAS DE NAVEGACIÓN (Selector / Activar PRO)
+   06. 📝 PANTALLA FORMULARIO (Inputs y lógica condicional)
+   07. 📊 PANTALLA RESULTADOS (Grids de parámetros y QR)
+   08. 🔑 PANTALLA ACTIVACIÓN PRO (Licencias y pagos)
+   09. 📢 FOOTER FIJO & ANUNCIOS
+   10. ⏳ INTERSTICIAL PRE-RESULTADOS (Anuncio pantalla completa)
+   11. 📤 MODALES DE EXPORTACIÓN / COMUNIDAD / HISTORIAL
+   12. ☕ BOTONES FLOTANTES & MODAL CAFÉ
+   13. 🔐 MODALES EXISTENTES (PRO, PAGO, LOGOUT)
+   14. 📴 BADGE OFFLINE & SCRIPTS FINALES
+   ============================================================================ -->
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    <!-- ============================================================================
+         01. 📄 ENCABEZADO & METADATOS
+         ============================================================================
+         💡 Configuración técnica para PWA, SEO y compatibilidad móvil.
+         🔄 Para cambiar el color de la barra de estado: modificar theme-color.
+         ⚠️ NO eliminar user-scalable=no en móviles para evitar zoom accidental.
+         ============================================================================ -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>WPS Selector Pro</title>
@@ -9,13 +41,20 @@
     <link rel="apple-touch-icon" href="icons/favicon.png">
     <link rel="stylesheet" href="css/style.css">
     <link rel="manifest" href="manifest.json">
+    
     <meta name="theme-color" content="#1a1a2e">
-    <meta name="mobile-fweb-app-capable" content="yes">
-    <meta name="mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 </head>
 <body>
 
-    <!-- 📜 MODAL TÉRMINOS Y CONDICIONES (Primer Ingreso) -->
+    <!-- ============================================================================
+         02. 📜 MODAL TÉRMINOS Y CONDICIONES
+         ============================================================================
+         ⚠️ Se muestra solo la primera vez (controlado por localStorage en app.js).
+         🔧 Para actualizar el texto legal: editar dentro de .modal-text.
+         🔒 El botón se habilita solo al marcar el checkbox.
+         ============================================================================ -->
     <div id="terms-modal" class="modal-overlay">
         <div class="modal-content terms-modal">
             <div class="modal-icon">📋</div>
@@ -34,7 +73,13 @@
         </div>
     </div>
 
-    <!-- 🌐 HEADER GLOBAL ESTÁTICO -->
+    <!-- ============================================================================
+         03. 🌐 NAVEGACIÓN GLOBAL ESTÁTICA
+         ============================================================================
+         💡 Header superior fijo con menú de herramientas.
+         🔧 Para agregar nuevas apps: duplicar <a class="dropdown-item">.
+         ⚠️ Los onclick con alert() son placeholders. Reemplazar por rutas reales.
+         ============================================================================ -->
     <nav id="global-nav">
         <div class="nav-container">
             <a href="index.html" class="nav-item active">🏠 Inicio</a>
@@ -51,25 +96,40 @@
             <a href="#" class="nav-item" onclick="document.getElementById('community-modal').style.display='flex'">👥 Comunidad</a>
         </div>
     </nav>
-    <!-- 📦 CONTENEDOR PRINCIPAL -->
+
+    <!-- ============================================================================
+         04. 📦 CONTENEDOR PRINCIPAL & HEADER APP
+         ============================================================================
+         💡 Envuelve toda la lógica de la aplicación.
+         🔧 El badge <span id="header-badge"> se actualiza vía JS (FREE/PRO).
+         ============================================================================ -->
     <div class="container">
-        <!-- HEADER APP -->
         <header>
             <h1>WPS SELECTOR <span id="header-badge">FREE</span></h1>
             <h2>Matriz WPS | AWS D1.1</h2>
         </header>
 
-        <!-- NAVEGACIÓN TABS -->
+        <!-- ============================================================================
+             05. 🧭 PESTAÑAS DE NAVEGACIÓN
+             ============================================================================
+             💡 Alterna entre el formulario y la pantalla de activación PRO.
+             ⚠️ Los onclick llaman a switchTab() en app.js. No cambiar los IDs.
+             ============================================================================ -->
         <div class="nav-tabs">
             <button class="nav-tab active" onclick="switchTab('form-screen', this)">🔧 Selector</button>
             <button class="nav-tab" onclick="switchTab('activation-screen', this)">🔑 Activar PRO</button>
         </div>
 
-        <!-- 📐 LAYOUT RESPONSIVO (Formulario + Resultados) -->
+        <!-- ============================================================================
+             06. 📝 PANTALLA FORMULARIO
+             ============================================================================
+             ⚠️ ZONA CRÍTICA: Los IDs de los inputs deben coincidir con app.js.
+             🔧 Para agregar nuevos campos: duplicar .form-group y actualizar JS.
+             💡 Las secciones condicionales se muestran/ocultan según la posición.
+             ============================================================================ -->
         <div class="app-layout">
-            
-            <!-- 📝 PANTALLA FORMULARIO -->
             <div id="form-screen" class="screen active">
+                
                 <div class="form-group" id="group-process">
                     <label for="process">Proceso de Soldadura</label>
                     <select id="process" onchange="checkProcessPro()">
@@ -83,7 +143,7 @@
                 </div>
 
                 <div class="form-group" id="group-thickness">
-                    <label for="number">Espesor Placa Base (mm)</label>
+                    <label for="baseThickness">Espesor Placa Base (mm)</label>
                     <input type="number" id="baseThickness" placeholder="Ej: 10" min="1" max="200" step="0.5">
                 </div>
 
@@ -99,7 +159,8 @@
                         <option value="2G">2G (Horizontal)</option>
                         <option value="3G">3G (Vertical)</option>
                         <option value="4G">4G (Sobre Cabeza)</option>
-                    </select>                </div>
+                    </select>
+                </div>
 
                 <div class="form-group" id="group-material">
                     <label for="material">Tipo de Material</label>
@@ -123,6 +184,7 @@
                     </select>
                 </div>
 
+                <!-- 📍 SECCIÓN CONDICIONAL: FILETE (Posiciones F) -->
                 <div id="condition-filete" class="conditional-section">
                     <div class="section-title">⚡ Configuración Filete</div>
                     <div class="form-group" id="group-weldsize">
@@ -141,15 +203,17 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="number">Separación / Gap (mm)</label>
+                        <label for="fileteGap">Separación / Gap (mm)</label>
                         <input type="number" id="fileteGap" placeholder="0 - 5" min="0" max="5" step="0.5" oninput="validateFileteGap()">
                         <div id="gapWarning" class="gap-warning">⚠️ Gap > 5mm: Ajustar junta o usar WPS especial.</div>
                     </div>
                 </div>
 
+                <!-- 📍 SECCIÓN CONDICIONAL: BISEL (Ranura V/U/J) -->
                 <div id="condition-bevel" class="conditional-section">
-                    <div class="section-title">🔧 Bevel Groove Settings</div>                    <div class="form-group" id="group-groove">
-                        <label for="groovType">Tipo de Ranura</label>
+                    <div class="section-title">🔧 Bevel Groove Settings</div>
+                    <div class="form-group" id="group-groove">
+                        <label for="grooveType">Tipo de Ranura</label>
                         <select id="grooveType">
                             <option value="Sencillo">Sencillo (Single V)</option>
                             <option value="V">V (Double V)</option>
@@ -158,23 +222,24 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="number">Separación / Gap (mm)</label>
+                        <label for="gap">Separación / Gap (mm)</label>
                         <input type="number" id="gap" placeholder="2 - 3" min="0" max="10" step="0.5">
                     </div>
                     <div class="form-group">
-                        <label for="number">Talón / Root Face (mm)</label>
+                        <label for="rootFace">Talón / Root Face (mm)</label>
                         <input type="number" id="rootFace" placeholder="1 - 2" min="0" max="5" step="0.5">
                     </div>
                     <div class="form-group">
-                        <label for="number">Ángulo del Bisel (° por placa)</label>
+                        <label for="angle">Ángulo del Bisel (° por placa)</label>
                         <input type="number" id="angle" placeholder="Ej: 30" min="15" max="45">
                     </div>
                 </div>
 
+                <!-- 📍 SECCIÓN CONDICIONAL: TOPE (Square) -->
                 <div id="condition-square" class="conditional-section">
                     <div class="section-title">🔧 Square Groove Settings</div>
                     <div class="form-group">
-                        <label for="number">Separación / Gap (mm)</label>
+                        <label for="squareGap">Separación / Gap (mm)</label>
                         <input type="number" id="squareGap" placeholder="0 - 2" min="0" max="5" step="0.5">
                     </div>
                 </div>
@@ -186,7 +251,7 @@
 
                 <div id="consumptionInputs" style="display: none; margin-top: 10px;">
                     <div class="form-group">
-                        <label for="number">Longitud de Soldadura (metros)</label>
+                        <label for="weldLength">Longitud de Soldadura (metros)</label>
                         <input type="number" id="weldLength" placeholder="Ingresa la longitud total" min="0.1" step="0.1">
                     </div>
                 </div>
@@ -197,7 +262,15 @@
                 <button class="btn btn-action" style="margin-top: 8px; font-size: 0.85rem;" onclick="loadHistory()">📜 Historial de Cálculos</button>
             </div>
 
-            <!-- 📊 PANTALLA RESULTADOS -->            <div id="result-screen" class="screen">
+            <!-- ============================================================================
+                 07. 📊 PANTALLA RESULTADOS
+                 ============================================================================
+                 💡 Se muestra tras calcular. Contiene grids de parámetros.
+                 ⚠️ Los IDs (res-*) son inyectados por displayResults() en app.js.
+                 🔧 Para agregar nuevos campos: duplicar .param-box y actualizar JS.
+                 📄 El QR se genera automáticamente al calcular.
+                 ============================================================================ -->
+            <div id="result-screen" class="screen">
                 <div class="result-header">
                     <div class="wps-id" id="res-wps-id">WPS-GEN AWS D1.1</div>
                     <span id="res-badge" class="badge">AWS D1.1</span>
@@ -246,7 +319,8 @@
                     <div class="param-box"><div class="param-label">Diámetro</div><div id="res-diameter" class="param-value">-</div></div>
                     <div class="param-box"><div class="param-label">Clasif. AWS</div><div id="res-class" class="param-value">-</div></div>
                     <div class="param-box"><div class="param-label">Gas Prot.</div><div id="res-gas-type" class="param-value">-</div></div>
-                    <div class="param-box"><div class="param-label">Mezcla %</div><div id="res-gas-mix" class="param-value">-</div></div>                    <div class="param-box"><div class="param-label">Caudal</div><div id="res-flow" class="param-value">-</div></div>
+                    <div class="param-box"><div class="param-label">Mezcla %</div><div id="res-gas-mix" class="param-value">-</div></div>
+                    <div class="param-box"><div class="param-label">Caudal</div><div id="res-flow" class="param-value">-</div></div>
                 </div>
 
                 <div id="consumption-section" style="display:none;">
@@ -277,10 +351,15 @@
                     <button class="btn btn-action" onclick="openExportModal()">📤 EXPORTAR PDF</button>
                 </div>
             </div>
-
         </div> <!-- Fin .app-layout -->
 
-       <!-- 🔑 PANTALLA ACTIVACIÓN PRO -->
+        <!-- ============================================================================
+             08. 🔑 PANTALLA ACTIVACIÓN PRO
+             ============================================================================
+             💡 Alterna entre vista inactiva y activa según localStorage.
+             🔧 El input #license-code envía datos a activatePro() en app.js.
+             ⚠️ No cambiar IDs: user-device-id, activation-status, active-license-code.
+             ============================================================================ -->
         <div id="activation-screen" class="screen">
             <div id="pro-not-active">
                 <div class="activation-card">
@@ -318,12 +397,24 @@
         </div>
     </div>
 
-    <!-- 📢 FOOTER FIJO PARA ANUNCIOS (Móvil) -->
+    <!-- ============================================================================
+         09. 📢 FOOTER FIJO & ANUNCIOS
+         ============================================================================
+         ⚠️ ZONA CRÍTICA: Controla el banner publicitario inferior.
+         🔧 La altura se ajusta vía CSS (#app-footer .ad-container).
+         💡 Se oculta automáticamente si el usuario es PRO (.pro-hidden).
+         ============================================================================ -->
     <footer id="app-footer">
         <div id="ad-container"></div>
     </footer>
 
-    <!-- 📢 INTERSTICIAL PRE-RESULTADOS -->
+    <!-- ============================================================================
+         10. ⏳ INTERSTICIAL PRE-RESULTADOS
+         ============================================================================
+         💡 Se muestra ANTES de calcular (2 anuncios de 3s cada uno).
+         ⚠️ Los IDs interstitial-* son controlados por showInterstitialAd() en app.js.
+         🔧 Para cambiar textos/tiempos: editar la función JS correspondiente.
+         ============================================================================ -->
     <div id="pre-result-ad-overlay" class="interstitial-overlay">
         <div class="interstitial-content">
             <div id="interstitial-ad-img" class="interstitial-img"></div>
@@ -333,7 +424,13 @@
         </div>
     </div>
 
-    <!-- 📤 MODAL EXPORTAR PDF -->
+    <!-- ============================================================================
+         11. 📤 MODALES DE EXPORTACIÓN / COMUNIDAD / HISTORIAL
+         ============================================================================
+         💡 Modales independientes para PDF, redes sociales y cálculos previos.
+         🔧 Para agregar nuevas redes: duplicar <a> en community-modal.
+         ⚠️ Los onclick llaman a closeModal() en app.js.
+         ============================================================================ -->
     <div id="export-pdf-modal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-icon">📄</div>
@@ -346,7 +443,6 @@
         </div>
     </div>
 
-    <!-- 👥 MODAL COMUNIDAD -->
     <div id="community-modal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-icon">👥</div>
@@ -360,7 +456,6 @@
         </div>
     </div>
 
-    <!-- 📜 MODAL HISTORIAL -->
     <div id="history-modal" class="modal-overlay">
         <div class="modal-content" style="max-width: 400px; max-height: 80vh; overflow-y: auto;">
             <div class="modal-title">📜 Historial de Cálculos</div>
@@ -369,17 +464,21 @@
         </div>
     </div>
 
-    <!-- ☕ BOTÓN INVÍTAME UN CAFÉ -->
+    <!-- ============================================================================
+         12. ☕ BOTONES FLOTANTES & MODAL CAFÉ
+         ============================================================================
+         💡 Aparecen tras el primer cálculo exitoso (clase .visible).
+         🔧 Para cambiar el precio/link: editar #mp-link y texto en coffee-modal.
+         ⚠️ Los onclick llaman a openCoffeeModal() y trackCoffee().
+         ============================================================================ -->
     <button id="coffee-btn" class="floating-btn coffee-btn" aria-label="Invítame un café" onclick="openCoffeeModal()">
         ☕ <span id="coffee-count">0</span>
     </button>
 
-    <!-- 👥 BOTÓN FLOTANTE COMUNIDAD -->
     <button id="community-float-btn" class="floating-btn community-btn" aria-label="Únete a la comunidad" onclick="document.getElementById('community-modal').style.display='flex'">
         💬
     </button>
 
-    <!-- ☕ MODAL CAFÉ -->
     <div id="coffee-modal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-icon">☕</div>
@@ -390,7 +489,12 @@
         </div>
     </div>
 
-    <!-- MODALES EXISTENTES (PRO, PAGO, LOGOUT) -->
+    <!-- ============================================================================
+         13. 🔐 MODALES EXISTENTES (PRO, PAGO, LOGOUT)
+         ============================================================================
+         💡 Modales heredados de versiones anteriores. Controlados por pro-system.js.
+         ⚠️ NO eliminar. Requieren IDs: proModal, paymentModal, logoutModal.
+         ============================================================================ -->
     <div id="proModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-icon">🔒</div>
@@ -428,21 +532,18 @@
         </div>
     </div>
 
-    <!-- BADGE OFFLINE -->
+    <!-- ============================================================================
+         14. 📴 BADGE OFFLINE & SCRIPTS FINALES
+         ============================================================================
+         💡 Indicador visual de capacidad offline.
+         ⚠️ El script DEBE tener type="module" para soportar import/export en JS.
+         🔧 El ?v=4.2 fuerza la recarga de caché en GitHub Pages.
+         ============================================================================ -->
     <div class="offline-badge">
         <span class="dot"></span> Offline Ready
     </div>
 
-    <!-- SCRIPTS -->
-<script type="module" src="js/app.js?v=4.2"></script>
-    <!-- 📢 INTERSTICIAL PRE-RESULTADOS -->
-<div id="pre-result-ad-overlay" class="interstitial-overlay" style="display: none;">
-    <div class="interstitial-content">
-        <div id="interstitial-ad-img" class="interstitial-img" style="width: 100%; max-height: 200px; object-fit: contain; margin-bottom: 14px;"></div>
-        <div id="interstitial-timer" style="font-size: 1rem; font-weight: 700; color: var(--warning); margin-bottom: 10px; font-family: monospace;">⏱️ Cargando...</div>
-        <button id="interstitial-btn" style="width: 100%; padding: 16px; border: none; border-radius: 10px; font-size: 1.05rem; font-weight: 800; background: linear-gradient(135deg, #00d9ff, #00b4d8); color: #000; cursor: pointer;">⏳ Preparando tus parámetros...</button>
-        <div style="margin-top: 8px; font-size: 0.65rem; color: var(--muted);">🔒 Contenido gratuito patrocinado</div>
-    </div>
-</div>
+    <!-- ⚠️ IMPORTANTE: type="module" es obligatorio para que funcionen los imports de JS -->
+    <script type="module" src="js/app.js?v=4.2"></script>
 </body>
 </html>
