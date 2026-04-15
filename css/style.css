@@ -1,29 +1,71 @@
-/* =========================================
-WPS SELECTOR PRO - STYLESHEET v4.1 (FINAL)
-========================================= */
+/* ============================================================================
+   🎨 WPS SELECTOR PRO - STYLESHEET v4.2 (MAINTAINABLE EDITION)
+   ============================================================================
+   Descripción: Hoja de estilos principal para WPS Selector Pro
+   Última actualización: 2025
+   Autor: Juan Gaytán
+   
+   📋 ÍNDICE DE SECCIONES:
+   ────────────────────────────────────────────────────────────────────────
+   01. 🎨 VARIABLES CSS (Colores, sombras, radios)
+   02. 🔄 RESET GLOBAL & BASE
+   03. 🌐 HEADER GLOBAL (Navegación superior)
+   04. 📐 LAYOUT PRINCIPAL & TABS
+   05. 📝 FORMULARIOS & INPUTS
+   06. 🔘 BOTONES & ACCIONES
+   07. ⚙️ SECCIONES CONDICIONALES (Filete/Ranura)
+   08. 📊 PANTALLA DE RESULTADOS
+   09. 🔐 ACTIVACIÓN PRO & MODALES
+   10. 📢 FOOTER DE ANUNCIOS [⚠️ ZONA CRÍTICA - NO MODIFICAR SIN PRUEBAS]
+   11. ⏳ INTERSTICIAL PRE-RESULTADOS
+   12. ☕ BOTONES FLOTANTES (Café/Comunidad)
+   13. 🖥️ MEDIA QUERIES - DESKTOP (≥900px)
+   14. 🖨️ MEDIA QUERIES - IMPRESIÓN/PDF
+   ============================================================================ */
+
+
+/* ============================================================================
+   01. 🎨 VARIABLES CSS (Personaliza colores aquí)
+   ============================================================================ */
 :root {
-    --bg-dark: #1a1a2e;
-    --bg-card: #16213e;
-    --primary: #e94560;
-    --accent: #0f3460;
-    --success: #00d9ff;
-    --warning: #fca311;
-    --error: #ff4d4d;
-    --text: #ffffff;
-    --muted: #a0a0a0;
-    --input-bg: #0f172a;
-    --input-border: #334155;
-    --radius: 6px;
-    --shadow: 0 4px 12px rgba(0,0,0,0.3);
+    /* 🎨 Paleta de Colores Principales */
+    --bg-dark: #1a1a2e;           /* Fondo principal de la app */
+    --bg-card: #16213e;           /* Fondo de tarjetas y modales */
+    --primary: #e94560;           /* Color principal (botones, acentos) */
+    --accent: #0f3460;            /* Color secundario (detalles) */
+    --success: #00d9ff;           /* Éxito, validaciones correctas */
+    --warning: #fca311;           /* Advertencias, elementos PRO */
+    --error: #ff4d4d;             /* Errores, validaciones fallidas */
+    
+    /* 📝 Colores de Texto */
+    --text: #ffffff;              /* Texto principal */
+    --muted: #a0a0a0;             /* Texto secundario, labels */
+    
+    /* 🧪 Elementos de Formulario */
+    --input-bg: #0f172a;          /* Fondo de inputs/selects */
+    --input-border: #334155;      /* Borde de inputs */
+    
+    /* 📐 Dimensiones y Efectos */
+    --radius: 6px;                /* Radio de bordes general */
+    --shadow: 0 4px 12px rgba(0,0,0,0.3); /* Sombra base */
 }
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ============================================================================
+   02. 🔄 RESET GLOBAL & BASE (No tocar salvo cambios estructurales)
+   ============================================================================ */
+*, *::before, *::after { 
+    box-sizing: border-box; 
+    margin: 0; 
+    padding: 0; 
+}
 
 body {
     font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
     background: var(--bg-dark);
     color: var(--text);
-    padding: 20px 15px 140px; /* Espacio para footer 90px + margen */
+    /* ⚠️ IMPORTANTE: padding-bottom debe ser >= altura del footer + margen */
+    padding: 20px 15px 140px; 
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -31,12 +73,17 @@ body {
     line-height: 1.4;
     transition: padding-bottom 0.3s ease;
 }
+
+/* Estado PRO: Elimina padding inferior porque el footer se oculta */
 body.pro-active { padding-bottom: 20px; }
+
+/* Contenedor principal centrado */
 .container { width: 100%; max-width: 500px; position: relative; }
 
-/* =========================================
-🌐 HEADER GLOBAL ESTÁTICO
-========================================= */
+
+/* ============================================================================
+   03. 🌐 HEADER GLOBAL (Navegación superior estática)
+   ============================================================================ */
 #global-nav {
     background: var(--bg-card);
     border-bottom: 1px solid var(--input-border);
@@ -46,15 +93,17 @@ body.pro-active { padding-bottom: 20px; }
     border-radius: 0 0 12px 12px;
     box-shadow: var(--shadow);
 }
+
 .nav-container {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: wrap; /* Permite que los items bajen en móviles pequeños */
     justify-content: center;
     gap: 12px;
     max-width: 900px;
     margin: 0 auto;
     padding: 0 10px;
 }
+
 .nav-item {
     color: var(--muted);
     text-decoration: none;
@@ -67,61 +116,96 @@ body.pro-active { padding-bottom: 20px; }
 }
 .nav-item:hover, .nav-item.active { color: var(--success); background: rgba(0, 217, 255, 0.1); }
 .nav-item.active { border-bottom: 2px solid var(--success); }
+
+/* ── Dropdown de "Más herramientas" ── */
 .nav-dropdown { position: relative; }
+
 .dropdown-trigger {
     background: transparent; border: none; color: var(--muted);
     font: inherit; cursor: pointer; padding: 6px 10px; border-radius: var(--radius);
 }
 .dropdown-trigger:hover { color: var(--success); background: rgba(0, 217, 255, 0.1); }
+
 .dropdown-menu {
     position: absolute; top: 100%; left: 50%; transform: translateX(-50%) translateY(8px);
     background: var(--bg-card); border: 1px solid var(--input-border); border-radius: 8px;
     padding: 8px; min-width: 200px; box-shadow: 0 8px 24px rgba(0,0,0,0.5);
     opacity: 0; visibility: hidden; transition: all 0.2s ease; z-index: 100;
 }
+/* Mostrar dropdown al hacer hover o focus */
 .nav-dropdown:hover .dropdown-menu, .nav-dropdown:focus-within .dropdown-menu {
     opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0);
 }
+
 .dropdown-item {
     display: block; padding: 8px 10px; color: var(--muted); text-decoration: none;
     font-size: 0.8rem; border-radius: 4px; transition: background 0.15s;
 }
 .dropdown-item:hover { background: rgba(255,255,255,0.05); color: var(--text); }
 
-/* =========================================
-📐 LAYOUT & TABS
-========================================= */
+
+/* ============================================================================
+   04. 📐 LAYOUT PRINCIPAL & TABS (Selector / Activar PRO)
+   ============================================================================ */
 .app-layout { display: flex; flex-direction: column; gap: 16px; width: 100%; }
+
+/* Header de la App (Título) */
 header { text-align: center; margin-bottom: 16px; border-bottom: 2px solid var(--primary); padding-bottom: 8px; }
 h1 { font-size: 1.4rem; text-transform: uppercase; letter-spacing: 2px; font-weight: 800; }
 h2 { font-size: 0.75rem; color: var(--muted); margin-top: 2px; font-weight: 400; }
+
+/* Pestañas de navegación */
 .nav-tabs { display: flex; gap: 8px; margin-bottom: 16px; background: var(--bg-card); padding: 6px; border-radius: 8px; box-shadow: var(--shadow); }
 .nav-tab { flex: 1; padding: 9px; background: transparent; border: none; color: var(--muted); font-weight: 600; cursor: pointer; border-radius: var(--radius); transition: all 0.2s; font-size: 0.8rem; text-transform: uppercase; }
 .nav-tab.active { background: var(--primary); color: white; box-shadow: 0 2px 8px rgba(233, 69, 96, 0.4); }
 .nav-tab:hover:not(.active) { background: rgba(255,255,255,0.05); color: var(--text); }
+
+/* Manejo de pantallas (ocultar/mostrar) */
 .screen { display: none; animation: fadeIn 0.3s ease; }
 .screen.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
-/* =========================================
-📝 FORMULARIOS & BOTONES
-========================================= */
+
+/* ============================================================================
+   05. 📝 FORMULARIOS & INPUTS (Estilos de campos)
+   ============================================================================ */
 .form-group { margin-bottom: 12px; }
-label { display: block; margin-bottom: 4px; color: var(--success); font-weight: 600; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; }
+
+label { 
+    display: block; margin-bottom: 4px; color: var(--success); 
+    font-weight: 600; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; 
+}
+
 select, input[type="number"], input[type="text"] {
     width: 100%; padding: 11px; background: var(--input-bg); border: 1px solid var(--input-border); color: white;
     border-radius: var(--radius); font-size: 0.95rem; appearance: none; transition: border-color 0.2s, box-shadow 0.2s;
 }
 select:focus, input:focus { outline: none; border-color: var(--success); box-shadow: 0 0 0 3px rgba(0, 217, 255, 0.15); }
+
+/* Flecha personalizada para selects */
 select {
     background-image: url("image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23a0a0a0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
     background-repeat: no-repeat; background-position: right 10px center; background-size: 14px;
 }
+
+/* Estados de error en inputs */
 .form-group.error select, .form-group.error input { border-color: var(--error) !important; box-shadow: 0 0 0 2px rgba(255, 77, 77, 0.25); animation: shake 0.3s ease; }
 .error-message { color: var(--error); font-size: 0.7rem; margin-top: 4px; display: flex; align-items: center; gap: 4px; }
 .error-message::before { content: "⚠️"; }
 @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
 
-.btn { width: 100%; padding: 12px; border: none; border-radius: var(--radius); font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: all 0.2s; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 8px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+
+/* ============================================================================
+   06. 🔘 BOTONES & ACCIONES (Estilos reutilizables)
+   ============================================================================ */
+.btn { 
+    width: 100%; padding: 12px; border: none; border-radius: var(--radius); 
+    font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: all 0.2s; 
+    text-transform: uppercase; letter-spacing: 0.5px; margin-top: 8px; 
+    display: flex; align-items: center; justify-content: center; gap: 6px; 
+}
+
+/* Variantes de botones */
 .btn-search { background: var(--primary); color: white; }
 .btn-search:hover { background: #d13650; transform: translateY(-1px); }
 .btn-back { background: var(--accent); color: white; }
@@ -130,83 +214,224 @@ select {
 .btn-danger { background: var(--error); color: white; }
 .btn-cancel { background: transparent; color: var(--muted); border: 1px solid var(--input-border); padding: 9px; border-radius: var(--radius); cursor: pointer; font-weight: 600; }
 
-.conditional-section { display: none; animation: fadeIn 0.3s; background: rgba(15, 52, 96, 0.4); padding: 12px; border-radius: 8px; border-left: 3px solid var(--accent); margin-bottom: 12px; }
-.section-title { font-size: 0.75rem; color: var(--muted); margin-bottom: 8px; text-transform: uppercase; font-weight: 700; border-bottom: 1px solid var(--input-border); padding-bottom: 4px; }
+.btn-cancel:hover { background: rgba(255,255,255,0.05); color: var(--text); }
+
+
+/* ============================================================================
+   07. ⚙️ SECCIONES CONDICIONALES (Filete / Ranura / Tope)
+   ============================================================================ */
+.conditional-section { 
+    display: none; animation: fadeIn 0.3s; 
+    background: rgba(15, 52, 96, 0.4); padding: 12px; 
+    border-radius: 8px; border-left: 3px solid var(--accent); margin-bottom: 12px; 
+}
+
+.section-title { 
+    font-size: 0.75rem; color: var(--muted); margin-bottom: 8px; 
+    text-transform: uppercase; font-weight: 700; border-bottom: 1px solid var(--input-border); padding-bottom: 4px; 
+}
+
+/* Validación de Gap en filete */
 .gap-warning { color: var(--warning); font-size: 0.65rem; display: none; margin-top: 3px; font-style: italic; }
 input.warning-input { border-color: var(--warning); box-shadow: 0 0 0 2px rgba(252, 163, 17, 0.2); }
+
+/* Checkbox personalizado */
 .checkbox-group { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.05); padding: 8px; border-radius: var(--radius); margin-top: 8px; cursor: pointer; }
 .checkbox-group input { width: 16px; height: 16px; accent-color: var(--success); }
 .checkbox-group span { font-size: 0.8rem; color: var(--muted); }
 
-/* =========================================
-📊 RESULTADOS & DISCLAIMER
-========================================= */
+
+/* ============================================================================
+   08. 📊 PANTALLA DE RESULTADOS (Grid de parámetros)
+   ============================================================================ */
 .result-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid var(--input-border); padding-bottom: 8px; }
 .wps-id { font-size: 1.1rem; font-weight: 800; color: var(--warning); font-family: 'Courier New', monospace; }
+
+/* Badge de versión (FREE/PRO) */
 .badge { font-size: 0.65rem; padding: 3px 7px; border-radius: 20px; background: #2d3748; color: var(--success); border: 1px solid var(--success); font-weight: 600; }
+
+/* Grid de parámetros */
 .param-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
 .param-grid.config { grid-template-columns: repeat(3, 1fr); }
 .param-grid.three-col { grid-template-columns: 1fr 1fr 1fr; }
+
+/* Cajas individuales de parámetros */
 .param-box { background: rgba(255,255,255,0.06); padding: 7px; border-radius: var(--radius); transition: background 0.2s, transform 0.15s; }
+.param-box:hover { background: rgba(255,255,255,0.1); transform: translateY(-1px); }
 .param-label { font-size: 0.55rem; color: var(--muted); text-transform: uppercase; }
 .param-value { font-size: 0.9rem; font-weight: 700; margin-top: 2px; font-family: 'Courier New', monospace; }
 .param-value.highlight { color: var(--success); }
+
+/* Nota técnica y advertencias */
 .tech-note { background: rgba(0, 217, 255, 0.08); border-left: 3px solid var(--success); padding: 10px; border-radius: var(--radius); font-size: 0.75rem; color: var(--muted); margin-top: 12px; line-height: 1.4; }
 .result-actions { display: flex; gap: 8px; margin-top: 12px; }
+
+/* Disclaimer legal colapsable */
 .disclaimer-box { margin-top: 12px; padding: 8px 10px; background: rgba(252, 163, 17, 0.1); border-left: 3px solid var(--warning); border-radius: 4px; cursor: pointer; }
 .disclaimer-box summary { color: var(--warning); font-weight: 600; font-size: 0.75rem; outline: none; }
 
-/* =========================================
-🔑 PRO & MODALES
-========================================= */
+
+/* ============================================================================
+   09. 🔐 ACTIVACIÓN PRO & MODALES (Pantallas superpuestas)
+   ============================================================================ */
 .activation-card { background: var(--bg-card); border: 2px solid var(--input-border); border-radius: 10px; padding: 16px; margin-bottom: 12px; text-align: center; }
+
+/* Lista de características PRO */
 .pro-features { list-style: none; padding: 12px; margin: 12px 0; text-align: left; background: rgba(0,0,0,0.2); border-radius: 6px; }
 .pro-features li { padding: 5px 0; color: var(--text); font-size: 0.85rem; border-bottom: 1px solid rgba(255,255,255,0.05); }
 .pro-features li::before { content: "✓ "; color: var(--success); font-weight: bold; margin-right: 6px; }
+
+/* Input de licencia */
 .license-input { font-family: monospace; font-size: 1rem; text-align: center; letter-spacing: 2px; text-transform: uppercase; background: #0b1120; border: 2px dashed var(--accent); padding: 10px; width: 100%; border-radius: var(--radius); margin-bottom: 10px; }
+
+/* Mensajes de estado */
 .status-message { padding: 10px; border-radius: var(--radius); margin-top: 12px; font-size: 0.85rem; text-align: center; }
 .status-message.success { background: rgba(0, 217, 255, 0.1); color: var(--success); border: 1px solid var(--success); }
 .status-message.error { background: rgba(255, 77, 77, 0.1); color: var(--error); border: 1px solid var(--error); }
 .status-message.info { background: rgba(252, 163, 17, 0.1); color: var(--warning); border: 1px solid var(--warning); }
+
+/* Box de ID de dispositivo */
 .device-id-box { margin-top: 12px; padding: 8px; background: rgba(0,0,0,0.3); border-radius: var(--radius); font-size: 0.75rem; color: var(--muted); }
 .device-id-box code { color: var(--success); font-family: monospace; font-weight: bold; cursor: pointer; padding: 2px 5px; background: rgba(0,0,0,0.4); border-radius: 3px; }
 .code-display { background: #0b1120; padding: 12px; border-radius: var(--radius); font-family: monospace; font-size: 1rem; text-align: center; margin: 12px 0; border: 2px dashed var(--warning); color: var(--warning); }
 
+/* ── Estilos base para MODALES ── */
 .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.88); z-index: 2000; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(5px); }
 .modal-content { background: var(--bg-card); border: 2px solid var(--warning); border-radius: 10px; padding: 20px; max-width: 340px; width: 100%; text-align: center; animation: slideIn 0.25s ease; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
 @keyframes slideIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
 .modal-icon { font-size: 2.5rem; margin-bottom: 10px; }
 .modal-title { color: var(--warning); font-size: 1.1rem; font-weight: bold; margin-bottom: 8px; }
 .modal-text { color: var(--muted); font-size: 0.85rem; line-height: 1.4; margin-bottom: 15px; }
 .modal-buttons { display: flex; gap: 8px; flex-direction: column; }
+
+/* Badge de Offline */
 .offline-badge { position: fixed; bottom: 120px; right: 15px; background: var(--bg-card); border: 1px solid var(--success); color: var(--success); padding: 5px 8px; border-radius: 16px; font-size: 0.65rem; display: flex; align-items: center; gap: 5px; box-shadow: 0 4px 12px rgba(0,0,0,0.4); z-index: 100; }
 .dot { width: 6px; height: 6px; background: var(--success); border-radius: 50%; animation: pulse 2s infinite; }
 @keyframes pulse { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.2); } 100% { opacity: 1; transform: scale(1); } }
 
-/* =========================================
-📢 FOOTER FIJO ANUNCIOS (90px UNIFICADO)
-========================================= */
-#app-footer {
-    position: fixed; bottom: 0; left: 0; width: 100%; background: var(--bg-dark);
-    border-top: 1px solid var(--input-border); box-shadow: 0 -4px 16px rgba(0,0,0,0.5);
-    z-index: 800; padding: 8px 0; display: flex; justify-content: center; transition: opacity 0.3s, transform 0.3s;
-}
-#app-footer.pro-hidden { opacity: 0; pointer-events: none; transform: translateY(100%); }
-.ad-container { width: 100%; max-width: 500px; height: 90px; margin: 0 10px; overflow: hidden; border-radius: 6px; position: relative; background: rgba(0,0,0,0.2); }
-.ad-link { display: block; width: 100%; height: 100%; }
-.ad-image { width: 100%; height: 100%; object-fit: contain; object-position: center; transition: opacity 0.3s; }
-.ad-label { position: absolute; top: 4px; right: 6px; background: rgba(0,0,0,0.7); color: #fff; font-size: 0.55rem; padding: 2px 5px; border-radius: 3px; z-index: 10; text-transform: uppercase; pointer-events: none; }
 
-/* =========================================
-⏳ INTERSTICIAL PRE-RESULTADOS (CORREGIDO)
-========================================= */
-.interstitial-overlay { display: none; position: fixed; inset: 0; background: rgba(10, 12, 20, 0.96); backdrop-filter: blur(8px); z-index: 9999; justify-content: center; align-items: center; padding: 16px; }
-.interstitial-content { background: var(--bg-card); border: 2px solid var(--input-border); border-radius: 14px; padding: 18px; width: 100%; max-width: 380px; display: flex; flex-direction: column; align-items: center; box-shadow: 0 20px 60px rgba(0,0,0,0.6); animation: popIn 0.25s ease-out; }
+/* ============================================================================
+   10. 📢 FOOTER DE ANUNCIOS [⚠️ ZONA CRÍTICA]
+   ============================================================================
+   ⚠️ ADVERTENCIA: Esta sección controla el banner publicitario fijo.
+   Cualquier cambio aquí puede afectar la visualización en móvil/desktop.
+   
+   🔧 Para modificar la altura:
+   - Móvil: Cambiar 'height' en .ad-container (línea ~370)
+   - Desktop: Cambiar dentro de @media (min-width: 900px) (línea ~430)
+   - Body padding-bottom: Debe ser siempre altura_footer + 30px de margen
+   
+   🚫 NO QUITAR los '!important' a menos que sepas lo que haces.
+   ============================================================================ */
+
+#app-footer {
+    position: fixed !important;      /* Fija el footer al fondo de la pantalla */
+    bottom: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100px !important;        /* Altura total del área del footer */
+    background: var(--bg-dark) !important;
+    border-top: 1px solid var(--input-border) !important;
+    box-shadow: 0 -4px 16px rgba(0,0,0,0.8) !important;
+    z-index: 9999 !important;        /* Asegura que esté sobre el contenido */
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    overflow: hidden !important;     /* Evita que imágenes grandes se salgan */
+    padding: 5px 0 !important;
+    transition: opacity 0.3s, transform 0.3s;
+}
+
+/* Ocultar footer cuando el usuario es PRO */
+#app-footer.pro-hidden { 
+    display: none !important; 
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transform: translateY(100%) !important;
+}
+
+/* Contenedor del anuncio: Altura estricta */
+.ad-container { 
+    width: 100% !important; 
+    max-width: 500px !important; 
+    height: 90px !important;         /* ⚠️ ALTURA DEL BANNER - MODIFICAR AQUÍ */
+    margin: 0 auto !important; 
+    overflow: hidden !important; 
+    position: relative !important;
+    background: rgba(0,0,0,0.2) !important;
+    border-radius: 6px !important;
+    flex-shrink: 0;                  /* Evita que se encoja en flexbox */
+}
+
+/* Enlace del anuncio (cubrir todo el contenedor) */
+.ad-link { 
+    display: block !important; 
+    width: 100% !important; 
+    height: 100% !important; 
+    text-decoration: none;
+}
+
+/* Imagen del anuncio: Ajuste perfecto sin deformar */
+.ad-image { 
+    width: 100% !important; 
+    height: 100% !important; 
+    object-fit: contain !important;  /* Mantiene proporción original */
+    object-position: center !important;
+    display: block !important;
+    transition: opacity 0.3s;
+    max-height: 90px !important;     /* Tope de seguridad */
+}
+
+/* Etiqueta "PUBLICIDAD" (esquina superior derecha) */
+.ad-label { 
+    position: absolute !important; 
+    top: 4px !important; 
+    right: 6px !important; 
+    background: rgba(0,0,0,0.7) !important; 
+    color: #fff !important; 
+    font-size: 0.55rem !important; 
+    padding: 2px 5px !important; 
+    border-radius: 3px !important; 
+    z-index: 10 !important; 
+    text-transform: uppercase !important; 
+    pointer-events: none !important;
+    white-space: nowrap;
+}
+
+/* Ajuste del BODY para evitar que el contenido quede tapado por el footer */
+body {
+    padding-bottom: 120px !important; /* 90px footer + 30px margen de seguridad */
+}
+
+
+/* ============================================================================
+   11. ⏳ INTERSTICIAL PRE-RESULTADOS (Anuncio de pantalla completa)
+   ============================================================================ */
+.interstitial-overlay { 
+    display: none; position: fixed; inset: 0; background: rgba(10, 12, 20, 0.96); 
+    backdrop-filter: blur(8px); z-index: 9999; justify-content: center; 
+    align-items: center; padding: 16px; 
+}
+
+.interstitial-content { 
+    background: var(--bg-card); border: 2px solid var(--input-border); 
+    border-radius: 14px; padding: 18px; width: 100%; max-width: 380px; 
+    display: flex; flex-direction: column; align-items: center; 
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6); animation: popIn 0.25s ease-out; 
+}
 @keyframes popIn { from { transform: scale(0.92); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
 .interstitial-img { width: 100%; max-height: 200px; object-fit: contain; border-radius: 8px; background: #0f172a; margin-bottom: 14px; min-height: 110px; }
 .interstitial-timer { font-size: 1rem; font-weight: 700; color: var(--warning); margin-bottom: 10px; font-family: 'Courier New', monospace; }
-.btn-interstitial { width: 100%; padding: 16px; border: none; border-radius: 10px; font-size: 1.05rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; transition: all 0.2s; background: linear-gradient(135deg, var(--success), #00b4d8); color: #000; box-shadow: 0 6px 20px rgba(0, 217, 255, 0.3); position: relative; overflow: hidden; }
+
+/* Botón del intersticial con efectos */
+.btn-interstitial { 
+    width: 100%; padding: 16px; border: none; border-radius: 10px; 
+    font-size: 1.05rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; 
+    cursor: pointer; transition: all 0.2s; background: linear-gradient(135deg, var(--success), #00b4d8); 
+    color: #000; box-shadow: 0 6px 20px rgba(0, 217, 255, 0.3); position: relative; overflow: hidden; 
+}
 .btn-interstitial:disabled { background: #334155; color: #94a3b8; box-shadow: none; cursor: not-allowed; }
 .btn-interstitial:not(:disabled):hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 10px 30px rgba(0, 217, 255, 0.5); }
 .btn-interstitial:not(:disabled):active { transform: scale(0.98); }
@@ -214,60 +439,114 @@ input.warning-input { border-color: var(--warning); box-shadow: 0 0 0 2px rgba(2
 @keyframes pulse-ring { 0% { transform: scale(0.95); opacity: 0.8; } 100% { transform: scale(1.05); opacity: 0; } }
 .interstitial-note { margin-top: 8px; font-size: 0.65rem; color: var(--muted); opacity: 0.8; }
 
-/* =========================================
-☕ & 👥 BOTONES FLOTANTES (CORREGIDOS)
-========================================= */
+
+/* ============================================================================
+   12. ☕ BOTONES FLOTANTES (Café / Comunidad)
+   ============================================================================ */
 .floating-btn {
-    position: fixed; z-index: 850; border: none; border-radius: 50%; width: 54px; height: 54px;
+    position: fixed; z-index: 850; border: none; border-radius: 50%; 
+    width: 54px; height: 54px;
     display: flex; align-items: center; justify-content: center; font-size: 1.4rem;
-    box-shadow: 0 6px 16px rgba(0,0,0,0.4); cursor: pointer; transition: transform 0.2s, opacity 0.3s;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.4); cursor: pointer; 
+    transition: transform 0.2s, opacity 0.3s;
     opacity: 0; pointer-events: none; user-select: none;
 }
+/* Clase para mostrar los botones con animación */
 .floating-btn.visible { opacity: 1; pointer-events: auto; animation: fadeInUp 0.4s ease forwards; }
 @keyframes fadeInUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+/* Botón Invítame un Café */
 .coffee-btn { bottom: 180px; right: 18px; background: #6f4e37; color: #fff; }
 .coffee-btn:hover { transform: scale(1.1); background: #5a3e2b; }
 .coffee-btn #coffee-count { position: absolute; top: -4px; right: -4px; background: var(--primary); color: white; font-size: 0.65rem; padding: 2px 5px; border-radius: 10px; font-weight: bold; }
+
+/* Botón Comunidad */
 .community-btn { bottom: 180px; left: 18px; background: var(--accent); color: white; }
 .community-btn:hover { transform: scale(1.1); background: #0b2545; }
 
-/* =========================================
-🖥️ DESKTOP RESPONSIVE (≥900px)
-========================================= */
+
+/* ============================================================================
+   13. 🖥️ MEDIA QUERIES - DESKTOP (≥900px)
+   ============================================================================
+   💡 Aquí se definen los estilos para pantallas grandes (PC/Laptop).
+   El layout cambia de columna a fila (50/50).
+   ============================================================================ */
 @media (min-width: 900px) {
-    body { padding: 20px 30px 130px; align-items: flex-start; } /* 90px footer + 40px margen */
+    /* Ajuste de padding para desktop: altura footer + margen */
+    body { padding: 20px 30px 130px !important; align-items: flex-start; }
+    
     .container { max-width: 1000px; }
     #global-nav { margin-bottom: 24px; }
     .nav-container { justify-content: flex-start; gap: 20px; }
+    
+    /* Layout en fila para formulario y resultados */
     .app-layout { flex-direction: row; gap: 24px; }
     #form-screen, #result-screen { flex: 1; display: block !important; min-width: 0; }
     #form-screen { border-right: 1px solid var(--input-border); padding-right: 20px; }
     #result-screen { overflow-y: auto; max-height: calc(100vh - 180px); padding-bottom: 20px; }
-    .btn-back { display: none !important; }
+    
+    .btn-back { display: none !important; } /* Ocultar botón volver en desktop */
     .result-actions { justify-content: flex-end; }
+    
+    /* Reubicar botones flotantes en escritorio */
     .coffee-btn { bottom: 30px; right: 30px; }
     .community-btn { bottom: 30px; left: 30px; }
     .offline-badge { bottom: 30px; right: 100px; }
-    #app-footer { display: flex; }
+    
+    /* Asegurar que el footer se muestre en desktop */
+    #app-footer { display: flex !important; }
+    
+    /* Ajuste de altura de anuncios para desktop */
+    .ad-container { height: 100px !important; }
+    .ad-image { max-height: 100px !important; }
 }
 
-/* 🖨️ MODO DE IMPRESIÓN / PDF */
+
+/* ============================================================================
+   14. 🖨️ MEDIA QUERIES - IMPRESIÓN / PDF
+   ============================================================================
+   💡 Estilos exclusivos al generar el PDF o imprimir.
+   Se ocultan elementos de UI y se optimiza para papel A4.
+   ============================================================================ */
 @media print {
     @page { size: A4 portrait; margin: 0; }
-    body { background: #fff !important; color: #000 !important; padding: 0 !important; margin: 0 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    #global-nav, #app-footer, .offline-badge, .floating-btn, .modal-overlay, .nav-tabs, header, .btn, .checkbox-group, .gap-warning, .disclaimer-box, .ad-container { display: none !important; }
+    
+    /* Reset de colores para impresión */
+    body { 
+        background: #fff !important; color: #000 !important; 
+        padding: 0 !important; margin: 0 !important; 
+        -webkit-print-color-adjust: exact; print-color-adjust: exact; 
+    }
+    
+    /* Ocultar TODOS los elementos de navegación y UI */
+    #global-nav, #app-footer, .offline-badge, .floating-btn, 
+    .modal-overlay, .nav-tabs, header, .btn, .checkbox-group, 
+    .gap-warning, .disclaimer-box, .ad-container { display: none !important; }
+    
     .container { max-width: 100%; padding: 0; margin: 0; }
     .app-layout { display: block !important; }
     #form-screen, #activation-screen { display: none !important; }
-    #result-screen { display: block !important; position: static !important; width: 100% !important; margin: 0 !important; padding: 15mm !important; page-break-inside: avoid; background: #fff !important; color: #000 !important; }
+    
+    /* Mostrar solo resultados con formato de impresión */
+    #result-screen { 
+        display: block !important; position: static !important; 
+        width: 100% !important; margin: 0 !important; padding: 15mm !important; 
+        page-break-inside: avoid; background: #fff !important; color: #000 !important;
+    }
+    
     .result-header { border-bottom: 2px solid #000 !important; padding-bottom: 5px !important; margin-bottom: 10px !important; }
     .wps-id { color: #000 !important; font-size: 1.4rem !important; }
     .badge { border: 1px solid #000 !important; color: #000 !important; background: transparent !important; }
     .section-title { color: #000 !important; border-bottom: 1.5px solid #333 !important; font-size: 0.9rem !important; margin: 10px 0 5px !important; }
+    
+    /* Grid optimizado para papel */
     .param-grid { display: grid !important; grid-template-columns: repeat(4, 1fr) !important; gap: 4mm !important; margin-bottom: 6px !important; page-break-inside: avoid; }
     .param-box { background: #f4f4f4 !important; border: 1px solid #ccc !important; padding: 5px !important; border-radius: 3px !important; }
     .param-label { color: #555 !important; font-size: 0.65rem !important; }
     .param-value { color: #000 !important; font-size: 0.85rem !important; }
+    
     .tech-note { color: #333 !important; border-left: 2px solid #000 !important; background: transparent !important; padding: 6px !important; margin-top: 8px !important; page-break-inside: avoid; }
+    
+    /* QR posicionado en esquina inferior derecha del PDF */
     #wps-qr { position: absolute !important; bottom: 15mm !important; right: 15mm !important; border: none !important; width: 70px !important; height: 70px !important; }
 }
