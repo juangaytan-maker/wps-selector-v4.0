@@ -549,5 +549,17 @@
      🔔 NOTIFICACIONES TOAST
      ========================================= -->
 <div id="toast-container"></div>
+   <!-- =========================================
+     ⏳ INTERSTICIAL DE ANUNCIOS (Pre-cálculo)
+     ========================================= -->
+<div id="pre-result-ad-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:9998;justify-content:center;align-items:center;flex-direction:column;">
+    <div style="text-align:center;max-width:600px;padding:20px;">
+        <img id="interstitial-ad-img" src="" alt="Anuncio" style="width:100%;max-width:400px;border-radius:12px;margin-bottom:20px;box-shadow:0 8px 32px rgba(0,0,0,0.5);">
+        <div id="interstitial-timer" style="color:#fff;font-size:1.1rem;margin-bottom:16px;">⏱️ Preparando...</div>
+        <button id="interstitial-btn" style="background:linear-gradient(135deg,#e94560,#0f3460);color:#fff;border:none;padding:14px 32px;border-radius:8px;font-size:1rem;font-weight:bold;cursor:pointer;transition:all 0.3s;">
+            ⏳ Espere...
+        </button>
+    </div>
+</div>
 </body>
 </html>
