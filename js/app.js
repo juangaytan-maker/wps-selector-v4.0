@@ -30,6 +30,7 @@
 // ============================================================================
 // 💡 Módulos externos necesarios para la lógica de la app
 // 🔧 Si agregas nuevas funciones a estos archivos, actualiza los imports aquí
+import { showToast, showInfo, showSuccess, showWarning, showError } from './notifications.js';
 import { calcularWPSCompleto } from './wps-calculator.js';
 import { 
     updateProUI, 
