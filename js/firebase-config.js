@@ -1,54 +1,44 @@
-/**
-🔥 FIREBASE CONFIGURATION (v10.8.0 MODULAR)
-- Inicialización limpia y centralizada
-- Exportación explícita de módulos Firestore
-- Agregado serverTimestamp para futuras actualizaciones
-*/
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import {
-    getFirestore,
-    doc,
-    getDoc,
-    setDoc,
-    updateDoc,
-    collection,
-    query,
-    where,
-    getDocs,
-    addDoc,
-    deleteDoc,
-    orderBy,
-    serverTimestamp
-} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+/* ============================================================================
+   🔥 FIREBASE CONFIGURATION - v4.2
+   ============================================================================
+   Descripción: Configuración e inicialización de Firebase para WPS Selector Pro
+   Proyecto: wps-selector-db-490f2
+   Última actualización: 2025
+   
+   ⚠️ IMPORTANTE: Este archivo usa módulos ES6. No cambiar los imports.
+   ============================================================================ */
 
-// 🔑 CONFIGURACIÓN (TUS CLAVES REALES)
+// ── Imports desde CDN de Firebase (versión 10.7.1) ──
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+import { 
+    getFirestore, 
+    doc, 
+    getDoc, 
+    setDoc, 
+    updateDoc, 
+    increment 
+} from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+// ── Configuración de tu proyecto Firebase ──
 const firebaseConfig = {
-    apiKey: "AIzaSyCDJzrS3WQLI_BU4lGn0fKFN4qnHVj10E0",
-    authDomain: "wps-selector-db.firebaseapp.com",
-    projectId: "wps-selector-db",
-    storageBucket: "wps-selector-db.firebasestorage.app",
-    messagingSenderId: "973070694308",
-    appId: "1:973070694308:web:06834973b5a9e90583f331"
+    apiKey: "AIzaSyCtmTJxhO49aqVtrS0MA_-dUO1UF3smF50",
+    authDomain: "wps-selector-db-490f2.firebaseapp.com",
+    projectId: "wps-selector-db-490f2",
+    storageBucket: "wps-selector-db-490f2.firebasestorage.app",
+    messagingSenderId: "831276563180",
+    appId: "1:831276563180:web:526724a2a4b5e3c16203c9"
 };
 
-// Inicializar Firebase
+// ── Inicializar Firebase ──
 const app = initializeApp(firebaseConfig);
-// Inicializar Firestore
 const db = getFirestore(app);
 
-// Exportar TODO lo necesario para la app
-export {
-    db,
-    doc,
-    getDoc,
-    setDoc,
-    updateDoc,
-    collection,
-    query,
-    where,
-    getDocs,
-    addDoc,
-    deleteDoc,
-    orderBy,
-    serverTimestamp
+// ── Exportar para usar en otros módulos ──
+export { 
+    db, 
+    doc, 
+    getDoc, 
+    setDoc, 
+    updateDoc, 
+    increment 
 };
