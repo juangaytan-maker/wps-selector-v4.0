@@ -798,26 +798,36 @@ body {
     to { transform: scale(1); opacity: 1; }
 }
 /* =========================================
-   💻 MEJORA DE BANNERS EN ESCRITORIO
+   💻 BANNERS GRANDES EN ESCRITORIO
    ========================================= */
 
+/* Footer banner - Pantallas grandes */
 @media (min-width: 768px) {
-    /* Hace el contenedor del banner más grande en PC */
-    .ad-banner, .banner-container, footer img {
-        max-width: 800px !important; /* Ancho máximo más grande */
-        height: auto !important;     /* Altura automática para no deformar */
-        margin: 0 auto 20px auto;    /* Centrado */
-    }
-
-    /* Si el banner está en el intersticial (popup), también agrandarlo */
-    #interstitial-ad-img {
-        max-width: 500px !important;
-        min-height: 150px;
+    /* Banner del footer - Forzar tamaño grande */
+    footer .ad-banner,
+    footer img[src*="ads/"],
+    .footer-banner img,
+    #footer-ad-banner img {
+        width: 100% !important;
+        max-width: 900px !important;
+        height: auto !important;
+        min-height: 180px !important;
+        display: block !important;
+        margin: 0 auto !important;
     }
     
-    /* Ajuste para el contenedor del intersticial */
-    #pre-result-ad-overlay > div {
-        max-width: 600px;
-        padding: 30px;
+    /* Contenedor del banner */
+    footer,
+    .footer-container {
+        padding: 20px !important;
     }
+}
+
+/* Asegurar que el banner sea responsive pero grande */
+.ad-banner img {
+    width: 100%;
+    max-width: 900px;
+    height: auto;
+    display: block;
+    margin: 0 auto;
 }
