@@ -66,6 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initProSystem();      // Inicializa sistema PRO/Free
     initAds();            // Carga anuncios desde Firebase
     trackNewDevice();     // Registra nuevo dispositivo en analytics
+    initTermsModal();     // ← AGREGADO: Verifica términos y condiciones
     console.log('✅ WPS Selector Pro cargado correctamente');
 });
 
