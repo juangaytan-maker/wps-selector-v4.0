@@ -1132,3 +1132,25 @@ body {
 .pulse-pro {
     animation: pulse-gold 2s infinite;
 }
+
+/* Estilo para selects que tienen opciones PRO */
+select.has-pro-options {
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    background-image: linear-gradient(to right, transparent 0%, rgba(255, 215, 0, 0.05) 100%);
+}
+
+/* Opción PRO dentro del select (solo se ve al abrir el dropdown) */
+select option.is-pro {
+    color: #a0a0a0;
+    font-style: italic;
+}
+
+/* Grupo de formulario que contiene un select PRO */
+.form-group:has(select.has-pro-options)::after {
+    content: "🔒 Algunas opciones requieren PRO";
+    display: block;
+    font-size: 0.75rem;
+    color: #ffd700;
+    margin-top: 4px;
+    opacity: 0.8;
+}
