@@ -732,6 +732,37 @@ function trackNewDevice() {
         incrementCounter('new_devices');
     }
 }
+// =========================================
+// 📜 GESTIÓN DE TÉRMINOS Y CONDICIONES
+// =========================================
+
+function initTermsModal() {
+    // Verificar si ya aceptó
+    if (localStorage.getItem('wps_terms_accepted') === 'true') {
+        return; // Ya aceptó, no hacer nada
+    }
+
+    // Mostrar modal
+    const modal = document.getElementById('terms-modal');
+    const checkbox = document.getElementById('terms-checkbox');
+    const btn = document.getElementById('accept-terms-btn');
+
+    if (modal) {
+        modal.style.display = 'flex'; // Usar flex para centrar
+        
+        // Habilitar botón al marcar checkbox
+        checkbox.addEventListener('change', function() {
+            btn.disabled = !this.checked;
+        });
+
+        // Acción al aceptar
+        btn.addEventListener('click', function() {
+            localStorage.setItem('wps_terms_accepted', 'true');
+            modal.style.display = 'none';
+            showToast('¡Bienvenido a WPS Selector Pro!', '✅ Registro exitoso', 'success');
+        });
+    }
+}
 
 
 // ============================================================================
