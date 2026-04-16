@@ -123,6 +123,10 @@ export function updateProUI() {
         if (appFooter) appFooter.classList.remove('pro-hidden');
         // Restaurar padding del body
         if (body) body.classList.remove('pro-active');
+         if (typeof window.markProOptions === 'function') {
+        window.markProOptions();
+    }
+}
     }
 }
 
