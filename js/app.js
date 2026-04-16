@@ -617,6 +617,57 @@ window.openCoffeeModal = function() {
     document.getElementById('coffee-modal').style.display = 'flex'; 
 };
 
+// ============================================================================
+//  MARCAR OPCIONES PRO EN LOS SELECTS
+// ============================================================================
+
+function markProOptions() {
+    // Si es PRO, no marcar nada (todo está disponible)
+    if (localStorage.getItem('wps_pro_active') === 'true') return;
+
+    // Mapeo de selects y sus valores FREE
+    const selectsConfig = [
+        { id: 'process', freeValues: FREE_PROCESSES },
+        { id: 'material', freeValues: FREE_MATERIALS },
+        { id: 'weldSize', freeValues: FREE_SIZES }
+    ];
+
+    selectsConfig.forEach(config => {
+        const select = document.getElementById(config.id);
+        if (!select) return;
+
+        // Iterar sobre todas las opciones
+        Array.from(select.options).forEach(option => {
+            const value = option.value;
+            
+            // Saltar opción por defecto "-- Seleccionar --"
+            if (!value || value === '-- Seleccionar --') return;
+
+            // Si NO está en la lista FREE, es PRO
+            if (!config.freeValues.includes(value)) {
+                // Marcar opción como PRO
+                option.classList.add('is-pro');
+                option.style.opacity = '0.5';
+                option.style.fontStyle = 'italic';
+                
+                // Agregar indicador visual al texto
+                if (!option.text.includes('🔒')) {
+                    option.text = option.text + ' 🔒';
+                }
+            } else {
+                // Es FREE, asegurar que se vea normal
+                option.classList.remove('is-pro');
+                option.style.opacity = '1';
+                option.style.fontStyle = 'normal';
+            }
+        });
+
+        // Agregar clase al select padre para styling adicional
+        if (select.querySelectorAll('.is-pro').length > 0) {
+            select.classList.add('has-pro-options');
+        }
+    });
+}
 
 // ============================================================================
 // 14. 📤 EXPORTACIÓN A PDF
