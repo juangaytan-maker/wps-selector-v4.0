@@ -681,3 +681,119 @@ body {
         max-width: none;
     }
 }
+/* =========================================
+   📜 ESTILOS MODAL TÉRMINOS
+   ========================================= */
+.terms-modal-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(10, 25, 47, 0.95); /* Fondo muy oscuro casi sólido */
+    z-index: 10000; /* Por encima de todo */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(5px);
+}
+
+.terms-modal-content {
+    background: #16213e;
+    border: 1px solid #0f3460;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 500px;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 0 50px rgba(0, 217, 255, 0.2);
+    animation: modalPop 0.3s ease-out;
+}
+
+.terms-header {
+    padding: 20px;
+    border-bottom: 1px solid #0f3460;
+    text-align: center;
+}
+
+.terms-header h2 {
+    color: #00d9ff;
+    margin: 0 0 5px 0;
+    font-size: 1.4rem;
+}
+
+.terms-header p {
+    color: #a0a0a0;
+    margin: 0;
+    font-size: 0.85rem;
+}
+
+.terms-body {
+    padding: 20px;
+    overflow-y: auto;
+    flex: 1;
+    color: #e0e0e0;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    text-align: justify;
+}
+
+.terms-body p {
+    margin-bottom: 15px;
+}
+
+.terms-body strong {
+    color: #ffffff;
+}
+
+.terms-footer {
+    padding: 20px;
+    border-top: 1px solid #0f3460;
+    background: #0f3460;
+    border-radius: 0 0 16px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.terms-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    color: #a0a0a0;
+    font-size: 0.9rem;
+}
+
+.terms-checkbox input {
+    width: 18px;
+    height: 18px;
+    accent-color: #00d9ff;
+    cursor: pointer;
+}
+
+#accept-terms-btn {
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    background: #334155; /* Desactivado por defecto */
+    color: #64748b;
+}
+
+#accept-terms-btn:not(:disabled) {
+    background: linear-gradient(135deg, #00d9ff, #0077ff);
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(0, 217, 255, 0.3);
+}
+
+#accept-terms-btn:not(:disabled):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 217, 255, 0.4);
+}
+
+@keyframes modalPop {
+    from { transform: scale(0.9); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
