@@ -47,8 +47,7 @@ function getDeviceId() {
 
 
 // ============================================================================
-// 03. 🔄 ESTADO GLOBAL DE LA APLICACIÓN
-// ============================================================================
+// 03. 🔄 ESTADO GLOBAL DE LA APLICACIÓN// ============================================================================
 // 💡 Variable que controla si el usuario tiene acceso PRO
 // 🔧 Se actualiza al activar/desactivar licencia
 // ⚠️ NO cambiar directamente. Usar activatePro() o deactivatePro()
@@ -97,8 +96,7 @@ export function updateProUI() {
         const savedCode = localStorage.getItem('wps_license_code');
         if (activeCodeDisplay && savedCode) activeCodeDisplay.textContent = savedCode;
         
-        // 📢 Ocultar footer de anuncios (clase CSS)
-        if (appFooter) appFooter.classList.add('pro-hidden');
+        // 📢 Ocultar footer de anuncios (clase CSS)        if (appFooter) appFooter.classList.add('pro-hidden');
         // Ajustar padding del body para layout sin footer
         if (body) body.classList.add('pro-active');
         
@@ -123,10 +121,11 @@ export function updateProUI() {
         if (appFooter) appFooter.classList.remove('pro-hidden');
         // Restaurar padding del body
         if (body) body.classList.remove('pro-active');
-         if (typeof window.markProOptions === 'function') {
-        window.markProOptions();
     }
-}
+    
+    // ← AGREGADO: Notificar a app.js para actualizar marcas de opciones PRO
+    if (typeof window.markProOptions === 'function') {
+        window.markProOptions();
     }
 }
 
@@ -146,13 +145,12 @@ const MASTER_KEY = "GTN-MASTER-1306-90";
 // ============================================================================
 // 💡 Valida códigos PRO vía Firebase o MasterKey
 // 🔧 Para agregar nuevas reglas de validación: editar dentro del try/catch
-// ⚠️ Los mensajes de error se muestran en #activation-status (index.html)
-export async function activatePro(licenseCode) {
+// ⚠️ Los mensajes de error se muestran en #activation-status (index.html)export async function activatePro(licenseCode) {
     // Validación básica de entrada
     if (!licenseCode) return { success: false, message: 'Ingresa un código.' };
     const cleanCode = licenseCode.trim().toUpperCase();
 
-    // ── 🚀 PRIORIDAD 1: Clave Maestra (activación inmediata) ──
+    // ──  PRIORIDAD 1: Clave Maestra (activación inmediata) ──
     if (cleanCode === MASTER_KEY) {
         localStorage.setItem('wps_pro_active', 'true');
         localStorage.setItem('wps_license_code', cleanCode);
@@ -196,8 +194,7 @@ export async function activatePro(licenseCode) {
     } catch (error) {
         console.error('Error activando PRO:', error);
         return { success: false, message: '❌ Error de conexión. Verifica internet.' };
-    }
-}
+    }}
 
 
 // ============================================================================
@@ -230,11 +227,11 @@ export function closeLogoutModal() {
     if (modal) modal.style.display = 'none';
 }
 
-// ── 🌐 EXPOSICIÓN GLOBAL PARA HTML (onclick) ──
+// ──  EXPOSICIÓN GLOBAL PARA HTML (onclick) ──
 // ⚠️ ESTAS LÍNEAS SON CRÍTICAS: Sin ellas, los onclick del HTML no funcionan
 window.confirmLogout = confirmLogout;
 window.closeLogoutModal = closeLogoutModal;
-window.deactivatePro = deactivatePro; // 👈 CORRECCIÓN: Agregar esta línea para solucionar ReferenceError
+window.deactivatePro = deactivatePro;
 
 
 // ============================================================================
@@ -247,7 +244,6 @@ export function contactDeveloper() {
     const message = encodeURIComponent(`Hola, quiero activar WPS PRO. Mi ID de dispositivo es: ${deviceId}`);
     window.open(`https://wa.me/528141434957?text=${message}`, '_blank');
 }
-
 
 // ============================================================================
 // 09. 🚀 INICIALIZACIÓN DEL SISTEMA
