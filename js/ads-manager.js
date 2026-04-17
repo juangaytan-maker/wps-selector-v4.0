@@ -3,11 +3,15 @@
 - Rotación suave con fade
 - Ponderación por peso (weight)
 - Exportación segura para intersticiales
+- ✅ CORREGIDO: Manejo de rutas relativas y fallback de imágenes
 */
 import { db, collection, getDocs } from './firebase-config.js';
 
 let adsData = [];
 let currentRotationTimer = null;
+
+// URL base de tu proyecto en GitHub Pages
+const BASE_URL = 'https://juangaytan-maker.github.io/wps-selector-v4.0/';
 
 export async function initAds() {
     const isPro = localStorage.getItem('wps_pro_active') === 'true';
@@ -26,11 +30,20 @@ export async function initAds() {
         querySnapshot.forEach((doc) => {
             const data = doc.data();
             if (data.active) {
-                // Normalizamos campo (soporta 'image' o 'imagePath')
+                // Normalizamos campo y convertimos ruta relativa a absoluta
+                let imagePath = data.imagePath || data.image || '';
+                
+                // ✅ CORRECCIÓN: Convertir rutas relativas a absolutas
+                if (imagePath && !imagePath.startsWith('http')) {
+                    // Quitar slash inicial si existe para evitar duplicados
+                    const cleanPath = imagePath.startsWith('/') ? imagePath.slice(1) : imagePath;
+                    imagePath = BASE_URL + cleanPath;
+                }
+                
                 adsData.push({ 
                     id: doc.id, 
                     ...data,
-                    imagePath: data.imagePath || data.image || '' 
+                    imagePath: imagePath
                 });
             }
         });
@@ -47,7 +60,8 @@ export async function initAds() {
     }
 }
 
-function startAdRotation(timeMs) {    showRandomAd();
+function startAdRotation(timeMs) {
+    showRandomAd();
     if (currentRotationTimer) clearInterval(currentRotationTimer);
     currentRotationTimer = setInterval(showRandomAd, timeMs);
 }
@@ -90,12 +104,21 @@ function showRandomAd() {
         adImg.style.opacity = '1';
     };
 
-    // Fallback si la imagen falla al cargar
+    // ✅ CORRECCIÓN: Fallback si la imagen falla al cargar
     newImg.onerror = () => {
-        adImg.style.opacity = '1';
         console.warn(`⚠️ Imagen no encontrada: ${ad.imagePath}`);
+        
+        // Imagen de fallback (placeholder genérico)
+        const fallbackImg = 'https://via.placeholder.com/400x150/16213e/00d9ff?text=Anuncio+No+Disponible';
+        
+        adImg.src = fallbackImg;
+        adImg.alt = 'Anuncio no disponible';
+        adLink.href = '#';
+        adLink.onclick = null;
+        adImg.style.opacity = '1';
     };
 }
+
 function getWeightedRandomAd() {
     const totalWeight = adsData.reduce((sum, ad) => sum + (ad.weight || 1), 0);
     let random = Math.random() * totalWeight;
