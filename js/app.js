@@ -619,14 +619,13 @@ window.openCoffeeModal = function() {
 };
 
 // ============================================================================
-//  MARCAR OPCIONES PRO EN LOS SELECTS
+//  🎨 MARCAR OPCIONES PRO VISUALMENTE (SELECTS) - VERSIÓN CORREGIDA
 // ============================================================================
 
 function markProOptions() {
-    // Si es PRO, no marcar nada (todo está disponible)
-    if (localStorage.getItem('wps_pro_active') === 'true') return;
+    const isPro = localStorage.getItem('wps_pro_active') === 'true';
 
-    // Mapeo de selects y sus valores FREE
+    // Mapeo de selects y sus valores FREE permitidos
     const selectsConfig = [
         { id: 'process', freeValues: FREE_PROCESSES },
         { id: 'material', freeValues: FREE_MATERIALS },
@@ -637,35 +636,51 @@ function markProOptions() {
         const select = document.getElementById(config.id);
         if (!select) return;
 
-        // Iterar sobre todas las opciones
+        let hasProOptions = false;
+
+        // Iterar sobre todas las opciones del select
         Array.from(select.options).forEach(option => {
             const value = option.value;
             
-            // Saltar opción por defecto "-- Seleccionar --"
+            // Saltar opción por defecto
             if (!value || value === '-- Seleccionar --') return;
+
+            // Guardar texto original la primera vez
+            if (!option.dataset.originalText) {
+                option.dataset.originalText = option.text;
+            }
 
             // Si NO está en la lista FREE, es PRO
             if (!config.freeValues.includes(value)) {
-                // Marcar opción como PRO
-                option.classList.add('is-pro');
-                option.style.opacity = '0.5';
-                option.style.fontStyle = 'italic';
+                hasProOptions = true;
                 
-                // Agregar indicador visual al texto
-                if (!option.text.includes('🔒')) {
-                    option.text = option.text + ' 🔒';
+                if (!isPro) {
+                    // MODO FREE: Marcar visualmente
+                    option.classList.add('is-pro');
+                    option.style.opacity = '0.5';
+                    option.style.fontStyle = 'italic';
+                    option.text = option.dataset.originalText + ' 🔒';
+                } else {
+                    // MODO PRO: Limpiar marcas
+                    option.classList.remove('is-pro');
+                    option.style.opacity = '1';
+                    option.style.fontStyle = 'normal';
+                    option.text = option.dataset.originalText;
                 }
             } else {
                 // Es FREE, asegurar que se vea normal
                 option.classList.remove('is-pro');
                 option.style.opacity = '1';
                 option.style.fontStyle = 'normal';
+                option.text = option.dataset.originalText;
             }
         });
 
-        // Agregar clase al select padre para styling adicional
-        if (select.querySelectorAll('.is-pro').length > 0) {
+        // Marcar el select padre si tiene opciones PRO
+        if (hasProOptions && !isPro) {
             select.classList.add('has-pro-options');
+        } else {
+            select.classList.remove('has-pro-options');
         }
     });
 }
